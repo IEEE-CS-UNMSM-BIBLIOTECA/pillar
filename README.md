@@ -1,11 +1,13 @@
-# pillar
+<div align="center">
+  <h1 align="center">
+    pillar
+  </h1>
 
-<div style="text-align: center;">
-<img src="./media/pillar.png" style="width: 90%"></img>
+  <img src="./media/pillar.png" style="width: 500px"></img>
 
-*Alexandria's backing bone*
+  *Alexandria's backing bone*
 
----
+  ---
 </div>
 
 
