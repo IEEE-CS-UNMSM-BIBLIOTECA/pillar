@@ -34,7 +34,7 @@ func getDocumentsBy(conn *pgxpool.Conn, field string, values []interface{}) []db
         return nil
     }
 
-
+    docs := make([]dbtypes.Document, 0)
     for rows.Next() {
         scan_doc, scan_err := pgx.RowToStructByName[dbtypes.Document](rows)
         if scan_err != nil {
@@ -43,12 +43,10 @@ func getDocumentsBy(conn *pgxpool.Conn, field string, values []interface{}) []db
             return nil
         }
 
-        log.Println(scan_doc)
+        docs = append(docs, scan_doc)
     }
 
-
-    log.Println("query:", query_str, "with params:", query_params)
-    return nil
+    return docs
 }
 
 func HndGetDocumentsBy(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -84,6 +82,13 @@ func HndGetDocumentsBy(w http.ResponseWriter, r *http.Request, params httprouter
 
     defer conn.Release()
 
-    getDocumentsBy(conn, field, new_req.Values)
+    docs := getDocumentsBy(conn, field, new_req.Values)
+    if len(docs) == 0 {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+
+    jsonexp.MarshalWrite(w, docs, jsonexp.DefaultOptionsV2())
+    return
 }
 
