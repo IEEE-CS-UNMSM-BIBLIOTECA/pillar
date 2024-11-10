@@ -71,7 +71,9 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		// Handle duplicate username or email error
 		if pgerr, ok := err.(*pgconn.PgError); ok && pgerr.Code == "23505" {
+			log.Println("Conflict error on field:", pgerr.ConstraintName)
 			w.WriteHeader(http.StatusConflict)
+			json.MarshalWrite(w, map[string]string{"error": "Username or email already exists"}, json.DefaultOptionsV2())
 			return
 		}
 		log.Println("Error inserting user:", err)
