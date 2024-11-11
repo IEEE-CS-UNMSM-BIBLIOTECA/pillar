@@ -33,6 +33,10 @@ type Authors struct {
 	Authors []Author `json:"authors"`
 }
 
+type Tags struct {
+	Tags []string `json:"tags"`
+}
+
 type Language struct {
 	Id   int32  `db:"id"`
 	Name string `db:"name"`
