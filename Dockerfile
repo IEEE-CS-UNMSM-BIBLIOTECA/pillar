@@ -18,6 +18,6 @@ WORKDIR /app
 
 COPY .env .env
 
-EXPOSE 6969
+EXPOSE 8080
 
 CMD ["./server"]
