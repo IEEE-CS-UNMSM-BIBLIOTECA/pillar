@@ -6,7 +6,7 @@ import (
 
 type Document struct {
 	Publisher_id          int32     `db:"publisher_id"`
-	Avg_rating            float64   `db:"avg_rating"`
+	Avg_rating            *float64  `db:"avg_rating"`
 	Language_id           int32     `db:"language_id"`
 	Format_id             int32     `db:"format_id"`
 	Id                    int32     `db:"id"`
@@ -22,6 +22,30 @@ type Document struct {
 	Isbn                  string    `db:"isbn"`
 	Description           string    `db:"description"`
 	Cover_url             string    `db:"cover_url"`
+}
+
+type Author struct {
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+type Authors struct {
+	Authors []Author `json:"authors"`
+}
+
+type Language struct {
+	Id   int32  `db:"id"`
+	Name string `db:"name"`
+}
+
+type Publisher struct {
+	Id   int32  `db:"id"`
+	Name string `db:"name"`
+}
+
+type Format struct {
+	Id   int32  `db:"id"`
+	Name string `db:"name"`
 }
 
 type SignUpRequest struct {

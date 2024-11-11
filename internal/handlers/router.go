@@ -1,6 +1,8 @@
 package handlers
 
-import "github.com/julienschmidt/httprouter"
+import (
+	"github.com/julienschmidt/httprouter"
+)
 
 func NewPillarRouter() *httprouter.Router {
 	new_router := httprouter.New()
@@ -11,6 +13,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/document/:field", HndGetDocumentsBy)
 
 	new_router.GET("/popular-books", sendPopularBooks)
+	new_router.GET("/books/:id", sendBookById)
 
 	return new_router
 }
