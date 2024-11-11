@@ -76,6 +76,25 @@ func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	err = conn.QueryRow(context.Background(),
 		"SELECT bpassword FROM \"User\" WHERE username = $1", creds.Username).Scan(&storedPassword)
 
+	var tag []string
+	docs, errores := conn.Query(context.Background(),
+		"SELECT title FROM \"Document\"")
+	if errores != nil {
+		log.Println("Query error:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	for docs.Next() {
+		var tagID string
+		log.Printf("ALGO:")
+		if err := docs.Scan(&tagID); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			return
+		}
+
+		tag = append(tag, tagID)
+	}
+	log.Printf("AYUDA: %v", tag)
 	// Check for errors
 	if err != nil {
 		if err == pgx.ErrNoRows {

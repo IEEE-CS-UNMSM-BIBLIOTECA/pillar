@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
 	"time"
 
@@ -12,20 +13,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type SignUpRequest struct {
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	Name        string `json:"name"`
-	BirthDate   string `json:"birth_date"` // Expecting a date string
-	Address     string `json:"address"`
-	MobilePhone string `json:"mobile_phone"`
-	RoleID      int32  `json:"role_id"`
-	GenderID    int32  `json:"gender_id"`
-}
-
 func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var req SignUpRequest
+	var req dbtypes.SignUpRequest
 	if err := json.UnmarshalRead(r.Body, &req, json.DefaultOptionsV2()); err != nil {
 		log.Println("Failed to parse request body:", err)
 		w.WriteHeader(http.StatusBadRequest)

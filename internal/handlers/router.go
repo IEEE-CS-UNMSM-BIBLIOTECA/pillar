@@ -10,5 +10,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.OPTIONS("/document/:field", HndOptGetDocumentsBy)
 	new_router.POST("/document/:field", HndGetDocumentsBy)
 
+	new_router.GET("/popular-books", sendPopularBooks)
+
 	return new_router
 }

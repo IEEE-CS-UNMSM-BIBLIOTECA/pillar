@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN go build -o server main.go
+RUN go build -o server ./cmd/serve
 
 FROM alpine:latest
 
