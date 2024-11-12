@@ -109,7 +109,7 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	// Construct a combined response
 	response := map[string]interface{}{
-		"author":    author.Authors,
+		"authors":   author.Authors,
 		"language":  language,
 		"publisher": publisher,
 		"tags":      tag.Tags,
