@@ -13,12 +13,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors, dbtypes.Language, dbtypes.Publisher, dbtypes.Format, dbtypes.Tags, error) {
+func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors, dbtypes.Language, dbtypes.Publisher, dbtypes.Tags, error) {
 	var document dbtypes.Document
 	var authors dbtypes.Authors
 	var language dbtypes.Language
 	var publisher dbtypes.Publisher
-	var format dbtypes.Format
 	var tags dbtypes.Tags
 	var authorsJSON []byte
 	var tagsJson []byte
@@ -43,8 +42,6 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 		&document.Avg_rating,
 		&language.Id,
 		&language.Name,
-		&format.Id,
-		&format.Name,
 		&publisher.Id,
 		&publisher.Name,
 		&authorsJSON,
@@ -52,22 +49,22 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 	)
 
 	if err != nil {
-		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Format{}, dbtypes.Tags{}, err
+		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
 	}
 
 	err = json.Unmarshal(authorsJSON, &authors.Authors)
 	if err != nil {
 		log.Println("Error unmarshalling authors:", err)
-		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Format{}, dbtypes.Tags{}, err
+		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
 	}
 
 	err = json.Unmarshal(tagsJson, &tags.Tags)
 	if err != nil {
 		log.Println("Error unmarshalling tags:", err)
-		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Format{}, dbtypes.Tags{}, err
+		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
 	}
 
-	return document, authors, language, publisher, format, tags, nil
+	return document, authors, language, publisher, tags, nil
 }
 
 func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -86,7 +83,7 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 	defer conn.Release()
 
-	document, author, language, publisher, format, tag, err := callToQuery(conn, bookID)
+	document, author, language, publisher, tag, err := callToQuery(conn, bookID)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -115,7 +112,6 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		"author":    author.Authors,
 		"language":  language,
 		"publisher": publisher,
-		"format":    format,
 		"tags":      tag.Tags,
 	}
 
