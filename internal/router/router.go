@@ -1,6 +1,7 @@
-package handlers
+package router
 
 import (
+	"pillar/internal/handlers"
 	"pillar/internal/handlers/auth/normal_user"
 	"pillar/internal/handlers/auth/normal_user/options_user"
 	"pillar/internal/handlers/books"
@@ -18,8 +19,8 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.OPTIONS("/register", options_user.HndOptSignup)
 
 	// RODRO
-	new_router.OPTIONS("/document/:field", HndOptGetDocumentsBy)
-	new_router.POST("/document/:field", HndGetDocumentsBy)
+	new_router.OPTIONS("/document/:field", handlers.HndGetDocumentsBy)
+	new_router.POST("/document/:field", handlers.HndOptGetDocumentsBy)
 
 	// BOOKS
 	new_router.POST("/books", books.SendPopularBooks)
