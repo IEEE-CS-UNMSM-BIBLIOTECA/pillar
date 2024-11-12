@@ -15,7 +15,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.OPTIONS("/document/:field", HndOptGetDocumentsBy)
 	new_router.POST("/document/:field", HndGetDocumentsBy)
 
-	new_router.GET("/books", books.SendPopularBooks)
+	new_router.POST("/books", books.SendPopularBooks)
 	new_router.GET("/book/:id", books.SendBookById)
 	new_router.GET("/book/:id/reviews", books.SendReviewsById)
 

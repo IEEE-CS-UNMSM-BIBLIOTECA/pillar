@@ -93,14 +93,34 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
+	documentMap := map[string]interface{}{
+		"avg_rating":            document.Avg_rating,
+		"id":                    document.Id,
+		"publication_date":      document.Publication_date,
+		"acquisition_date":      document.Acquisition_date,
+		"edition":               document.Edition,
+		"total_pages":           document.Total_pages,
+		"external_lend_allowed": document.External_lend_allowed,
+		"base_price":            document.Base_price,
+		"total_copies":          document.Total_copies,
+		"available_copies":      document.Available_copies,
+		"title":                 document.Title,
+		"isbn":                  document.Isbn,
+		"description":           document.Description,
+		"cover_url":             document.Cover_url,
+	}
+
 	// Construct a combined response
 	response := map[string]interface{}{
-		"document":  document,
 		"author":    author.Authors,
 		"language":  language,
 		"publisher": publisher,
 		"format":    format,
 		"tags":      tag.Tags,
+	}
+
+	for key, value := range documentMap {
+		response[key] = value
 	}
 
 	// Set the response header to application/json and encode the result into JSON

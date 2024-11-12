@@ -5,23 +5,23 @@ import (
 )
 
 type Document struct {
-	Publisher_id          int32     `db:"publisher_id"`
-	Avg_rating            *float64  `db:"avg_rating"`
-	Language_id           int32     `db:"language_id"`
-	Format_id             int32     `db:"format_id"`
-	Id                    int32     `db:"id"`
-	Publication_date      time.Time `db:"publication_date"`
-	Acquisition_date      time.Time `db:"acquisition_date"`
-	Edition               int32     `db:"edition"`
-	Total_pages           int32     `db:"total_pages"`
-	External_lend_allowed bool      `db:"external_lend_allowed"`
-	Base_price            float64   `db:"base_price"`
-	Total_copies          int32     `db:"total_copies"`
-	Available_copies      int32     `db:"available_copies"`
-	Title                 string    `db:"title"`
-	Isbn                  string    `db:"isbn"`
-	Description           string    `db:"description"`
-	Cover_url             string    `db:"cover_url"`
+	Publisher_id          int32     `json:"publisher_id"`
+	Avg_rating            *float64  `json:"avg_rating"`
+	Language_id           int32     `json:"language_id"`
+	Format_id             int32     `json:"format_id"`
+	Id                    int32     `json:"id"`
+	Publication_date      time.Time `json:"publication_date"`
+	Acquisition_date      time.Time `json:"acquisition_date"`
+	Edition               int32     `json:"edition"`
+	Total_pages           int32     `json:"total_pages"`
+	External_lend_allowed bool      `json:"external_lend_allowed"`
+	Base_price            float64   `json:"base_price"`
+	Total_copies          int32     `json:"total_copies"`
+	Available_copies      int32     `json:"available_copies"`
+	Title                 string    `json:"title"`
+	Isbn                  string    `json:"isbn"`
+	Description           string    `json:"description"`
+	Cover_url             string    `json:"cover_url"`
 }
 
 type Author struct {
@@ -38,33 +38,33 @@ type Tags struct {
 }
 
 type Language struct {
-	Id   int32  `db:"id"`
-	Name string `db:"name"`
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Publisher struct {
-	Id   int32  `db:"id"`
-	Name string `db:"name"`
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Format struct {
-	Id   int32  `db:"id"`
-	Name string `db:"name"`
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
 }
 
 type Review struct {
-	Id          int32  `db:"id"`
-	Title       string `db:"title"`
-	Content     string `db:"content"`
-	Rating      int32  `db:"rating"`
-	Total_likes int32  `db:"total_likes"`
-	Liked       bool   `db:"total_likes"`
+	Id          int32  `json:"id"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+	Rating      int32  `json:"rating"`
+	Total_likes int32  `json:"total_likes"`
+	Liked       bool   `json:"liked"`
 }
 
 type UserFromReview struct {
-	Id                  int32  `db:"id"`
-	Name                string `db:"name"`
-	Profile_picture_url string `db:"profile_picture_url"`
+	Id                  int32  `json:"id"`
+	Name                string `json:"name"`
+	Profile_picture_url string `json:"profile_picture_url"`
 }
 
 type SignUpRequest struct {
@@ -80,9 +80,9 @@ type SignUpRequest struct {
 }
 
 type PopularBook struct {
-	BookID     int    `db:"book_id"`
-	Title      string `db:"title"`
-	AuthorID   int    `db:"author_id"`
-	AuthorName string `db:"author_name"`
-	CoverURL   string `db:"cover_url"`
+	BookID     int    `json:"book_id"`
+	Title      string `json:"title"`
+	AuthorID   int    `json:"author_id"`
+	AuthorName string `json:"author_name"`
+	CoverURL   string `json:"cover_url"`
 }
