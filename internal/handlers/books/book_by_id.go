@@ -1,4 +1,4 @@
-package handlers
+package books
 
 import (
 	"context"
@@ -70,7 +70,7 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 	return document, authors, language, publisher, format, tags, nil
 }
 
-func sendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	id := ps.ByName("id")
 	bookID, err := strconv.Atoi(id)
 	if err != nil {

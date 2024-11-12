@@ -52,6 +52,21 @@ type Format struct {
 	Name string `db:"name"`
 }
 
+type Review struct {
+	Id          int32  `db:"id"`
+	Title       string `db:"title"`
+	Content     string `db:"content"`
+	Rating      int32  `db:"rating"`
+	Total_likes int32  `db:"total_likes"`
+	Liked       bool   `db:"total_likes"`
+}
+
+type UserFromReview struct {
+	Id                  int32  `db:"id"`
+	Name                string `db:"name"`
+	Profile_picture_url string `db:"profile_picture_url"`
+}
+
 type SignUpRequest struct {
 	Username    string `json:"username"`
 	Email       string `json:"email"`
@@ -65,7 +80,7 @@ type SignUpRequest struct {
 }
 
 type PopularBook struct {
-	BookID     int    `db::"book_id"`
+	BookID     int    `db:"book_id"`
 	Title      string `db:"title"`
 	AuthorID   int    `db:"author_id"`
 	AuthorName string `db:"author_name"`

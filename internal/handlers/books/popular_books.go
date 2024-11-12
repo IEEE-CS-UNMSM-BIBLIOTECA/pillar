@@ -1,4 +1,4 @@
-package handlers
+package books
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func getPopularBooks(conn *pgxpool.Conn, page, pageSize int, tagIDs []int) ([]db
 	return books, nil
 }
 
-func sendPopularBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func SendPopularBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var req struct {
 		UserID   int `json:"user_id"`
 		Page     int `json:"page"`
