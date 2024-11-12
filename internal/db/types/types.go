@@ -66,10 +66,19 @@ type Review struct {
 	Liked       bool   `json:"liked"`
 }
 
+type ReviewRequest struct {
+	UserID     int    `json:"user_id"`
+	DocumentID int    `json:"document_id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Rating     int    `json:"rating"`
+	Spoiler    bool   `json:"spoiler"`
+}
+
 type UserFromReview struct {
-	Id                  int32  `json:"id"`
-	Name                string `json:"name"`
-	Profile_picture_url string `json:"profile_picture_url"`
+	Id                  int32   `json:"id"`
+	Name                string  `json:"name"`
+	Profile_picture_url *string `json:"profile_picture_url"`
 }
 
 type SignUpRequest struct {

@@ -28,6 +28,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/book/:id", books.SendBookById)
 	new_router.OPTIONS("/book/:id", options_books.HndOptBookById)
 	new_router.GET("/book/:id/reviews", books.SendReviewsById)
+	new_router.POST("/book/new-review", books.AddReviews)
 
 	return new_router
 }
