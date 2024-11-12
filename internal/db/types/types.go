@@ -10,7 +10,7 @@ type Document struct {
 	Language_id           int32     `json:"language_id"`
 	Format_id             int32     `json:"format_id"`
 	Id                    int32     `json:"id"`
-	Publication_date      time.Time `json:"publication_date"`
+	Publication_date      int32     `json:"publication_year"`
 	Acquisition_date      time.Time `json:"acquisition_date"`
 	Edition               int32     `json:"edition"`
 	Total_pages           int32     `json:"total_pages"`
@@ -33,8 +33,13 @@ type Authors struct {
 	Authors []Author `json:"authors"`
 }
 
+type Tag struct {
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
 type Tags struct {
-	Tags []string `json:"tags"`
+	Tags []Tag `json:"tags"`
 }
 
 type Language struct {

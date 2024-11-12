@@ -16,9 +16,9 @@ import (
 func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors, dbtypes.Language, dbtypes.Publisher, dbtypes.Tags, error) {
 	var document dbtypes.Document
 	var authors dbtypes.Authors
+	var tags dbtypes.Tags
 	var language dbtypes.Language
 	var publisher dbtypes.Publisher
-	var tags dbtypes.Tags
 	var authorsJSON []byte
 	var tagsJson []byte
 
@@ -91,9 +91,9 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	documentMap := map[string]interface{}{
-		"avg_rating":            document.Avg_rating,
+		"mean_rating":           document.Avg_rating,
 		"id":                    document.Id,
-		"publication_date":      document.Publication_date,
+		"publication_year":      document.Publication_date,
 		"acquisition_date":      document.Acquisition_date,
 		"edition":               document.Edition,
 		"total_pages":           document.Total_pages,
