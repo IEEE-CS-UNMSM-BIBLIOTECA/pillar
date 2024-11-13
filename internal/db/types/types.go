@@ -64,8 +64,8 @@ type Review struct {
 	Rating      int32          `json:"rating"`
 	Total_likes int32          `json:"total_likes"`
 	Liked       bool           `json:"liked"`
-	Spoiler     bool           `json:"spoiler`
 	User        UserFromReview `json:"user"`
+	Spoiler     bool           `json:"spoiler"`
 }
 
 type ReviewRequest struct {
