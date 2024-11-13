@@ -100,3 +100,9 @@ type PopularBook struct {
 	AuthorName string `json:"author_name"`
 	CoverURL   string `json:"cover_url"`
 }
+
+type RegisterLoan struct {
+	BookID       int    `json:"book_id"`
+	UserID       int    `json:"user_id"`
+	MaxRetunDate string `json:"max_return_date"`
+}
