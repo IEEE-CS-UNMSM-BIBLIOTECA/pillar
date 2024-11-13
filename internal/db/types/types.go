@@ -58,12 +58,14 @@ type Format struct {
 }
 
 type Review struct {
-	Id          int32  `json:"id"`
-	Title       string `json:"title"`
-	Content     string `json:"content"`
-	Rating      int32  `json:"rating"`
-	Total_likes int32  `json:"total_likes"`
-	Liked       bool   `json:"liked"`
+	Id          int32          `json:"id"`
+	Title       string         `json:"title"`
+	Content     string         `json:"content"`
+	Rating      int32          `json:"rating"`
+	Total_likes int32          `json:"total_likes"`
+	Liked       bool           `json:"liked"`
+	Spoiler     bool           `json:"spoiler`
+	User        UserFromReview `json:"user"`
 }
 
 type ReviewRequest struct {
@@ -77,7 +79,7 @@ type ReviewRequest struct {
 
 type UserFromReview struct {
 	Id                  int32   `json:"id"`
-	Name                string  `json:"name"`
+	Name                string  `json:"user_name"`
 	Profile_picture_url *string `json:"profile_picture_url"`
 }
 

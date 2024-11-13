@@ -13,19 +13,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type response struct {
-	Review dbtypes.Review         `json:"review"`
-	User   dbtypes.UserFromReview `json:"user"`
-}
-
-// Updated UserFromReview struct
-type UserFromReview struct {
-	Id                int32  `db:"id"`
-	Name              string `db:"name"`
-	ProfilePictureUrl string `db:"profile_picture_url"`
-}
-
-func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]response, error) {
+func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]dbtypes.Review, error) {
 	query := `SELECT * FROM get_book_reviews($1, $2, $3)`
 	rows, err := conn.Query(context.Background(), query, bookID, page, pageSize)
 	if err != nil {
@@ -33,21 +21,20 @@ func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]respons
 	}
 	defer rows.Close()
 
-	var responseList []response
+	var responseList []dbtypes.Review
 
 	for rows.Next() {
 		var review dbtypes.Review
-		var user dbtypes.UserFromReview
-
 		err = rows.Scan(
 			&review.Id,
 			&review.Title,
 			&review.Content,
-			&user.Id,
-			&user.Name,
-			&user.Profile_picture_url,
+			&review.User.Id,
+			&review.User.Name,
+			&review.User.Profile_picture_url,
 			&review.Total_likes,
 			&review.Rating,
+			&review.Spoiler,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
@@ -55,10 +42,7 @@ func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]respons
 		}
 
 		// Append to responseList
-		responseList = append(responseList, response{
-			Review: review,
-			User:   user,
-		})
+		responseList = append(responseList, review)
 	}
 
 	if err = rows.Err(); err != nil {
