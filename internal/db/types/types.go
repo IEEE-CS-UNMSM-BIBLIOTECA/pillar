@@ -103,8 +103,24 @@ type PopularBook struct {
 	CoverURL   string `json:"cover_url"`
 }
 
-type RegisterLoan struct {
+type RegisterLend struct {
 	BookID       int    `json:"book_id"`
 	UserID       int    `json:"user_id"`
 	MaxRetunDate string `json:"max_return_date"`
+}
+
+type ListAddDocument struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	HasDocument bool   `json:"has_document"`
+}
+
+type AddDocList struct {
+	DocumentID int `json:"document_id"`
+	ListID     int `json:"list_id"`
+}
+
+type RenameList struct {
+	Name   string `json:"name"`
+	ListID int    `json:"list_id"`
 }

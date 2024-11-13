@@ -13,6 +13,7 @@ require (
 require github.com/felixge/httpsnoop v1.0.3 // indirect
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/renameio v1.0.1 // indirect
 	github.com/gorilla/handlers v1.5.2

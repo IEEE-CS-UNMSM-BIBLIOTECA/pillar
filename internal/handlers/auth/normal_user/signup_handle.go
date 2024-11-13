@@ -6,6 +6,8 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"pillar/internal/handlers/auth"
+
 	"time"
 
 	"github.com/go-json-experiment/json"
@@ -28,7 +30,7 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	// Hash the password
-	hashedPassword, err := HashPassword(req.Password)
+	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		log.Println("Error hashing password:", err)
 		w.WriteHeader(http.StatusInternalServerError)

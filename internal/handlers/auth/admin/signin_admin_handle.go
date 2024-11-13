@@ -1,4 +1,4 @@
-package normal_user
+package admin
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HndLoginAdmin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Credentials struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -26,7 +26,6 @@ func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Acquire a database connection
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
 		log.Println("Failed to acquire a database connection:", err)
@@ -35,12 +34,11 @@ func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	// Prepare and execute the query to find the user
 	var storedPassword string
+	var roleID int
 	err = conn.QueryRow(context.Background(),
-		"SELECT bpassword FROM \"User\" WHERE username = $1", creds.Username).Scan(&storedPassword)
+		"SELECT bpassword, role_id FROM \"User\" WHERE username = $1", creds.Username).Scan(&storedPassword, &roleID)
 
-	// Check for errors
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -51,14 +49,18 @@ func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Verify the password using bcrypt
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(creds.Password))
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized) // Password incorrect
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	// Generate JWT if credentials are valid
+	// Check if the role_id is 1 (admin)
+	if roleID != 1 {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	token, err := auth.GenerateJWT(creds.Username)
 	if err != nil {
 		log.Println("Failed to generate token:", err)
@@ -66,7 +68,6 @@ func HndLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Send the token back to the client
 	w.Header().Set("Content-Type", "application/json")
 	jsonexp.MarshalWrite(w, map[string]string{"token": token}, jsonexp.DefaultOptionsV2())
 }

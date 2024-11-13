@@ -12,16 +12,16 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func RegisterLoan(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var loan dbtypes.RegisterLoan
-	if err := json.NewDecoder(r.Body).Decode(&loan); err != nil {
+func RegisterLend(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var lend dbtypes.RegisterLend
+	if err := json.NewDecoder(r.Body).Decode(&lend); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	maxBooks := 5
 
-	maxRetunDate, err := time.Parse("2006-01-02", loan.MaxRetunDate) // Expecting format YYYY-MM-DD
+	maxRetunDate, err := time.Parse("2006-01-02", lend.MaxRetunDate) // Expecting format YYYY-MM-DD
 	if err != nil {
 		log.Println("Invalid return date format:", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -38,7 +38,7 @@ func RegisterLoan(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	_, err = conn.Exec(context.Background(), `
 		SELECT register_loan($1, $2, $3, $4);
-	`, loan.BookID, loan.UserID, maxBooks, maxRetunDate)
+	`, lend.BookID, lend.UserID, maxBooks, maxRetunDate)
 
 	if err != nil {
 		log.Println("Error calling register_loan:", err)
