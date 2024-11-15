@@ -8,7 +8,10 @@ import (
 	"strings"
 	"time"
 
+	dbutils "pillar/internal/db/utils"
+
 	"github.com/golang-jwt/jwt"
+	"github.com/jackc/pgx/v5"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -57,45 +60,60 @@ func TokenValidationMiddleware(next httprouter.Handle) httprouter.Handle {
 			return
 		}
 
-		// The token is passed as a "Bearer <token>"
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader { // Check if the header contains 'Bearer'
 			http.Error(w, "Malformed authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		// Validate the JWT token
 		token, err := ValidateJWT(tokenString)
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		// Optionally, check for specific claims (like user role or username) from the token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
 			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 			return
 		}
 
-		// Extract the username from claims
 		username := claims["username"].(string)
 		log.Printf("Authenticated user: %s", username)
 
-		// Set the username in context so it can be accessed by subsequent handlers
 		ctx := context.WithValue(r.Context(), "username", username)
 		r = r.WithContext(ctx)
 
-		// Call the next handler in the chain
 		next(w, r, ps)
 	}
 }
 
-// Example of a protected endpoint that requires user authentication
 func HndProtectedEndpoint(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Retrieve the username from the context
 	username := r.Context().Value("username").(string)
 
-	// You can now access the username for your business logic
 	w.Write([]byte("Hello, " + username + ", you're authenticated!"))
+}
+
+func GetIdFromUsername(username string) int {
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		return 0
+	}
+	defer conn.Release()
+
+	var userID int
+	query := `SELECT id FROM "User" WHERE username = $1`
+	err = conn.QueryRow(context.Background(), query, username).Scan(&userID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			log.Println("No user found with the given username")
+		} else {
+			log.Println("Error executing query:", err)
+		}
+		return 0
+	}
+
+	return userID
 }

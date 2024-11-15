@@ -7,6 +7,7 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"pillar/internal/handlers/auth"
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
@@ -14,17 +15,17 @@ import (
 
 func GetUserLists(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	book_id := ps.ByName("id")
-	user_id := ps.ByName("user_id")
+	username := r.Context().Value("username").(string)
+
+	user_id := auth.GetIdFromUsername(username)
+	if user_id == 0 {
+		http.Error(w, "That username does not exist", http.StatusBadRequest)
+		return
+	}
 
 	bookID, err := strconv.Atoi(book_id)
 	if err != nil {
 		http.Error(w, "Invalid book ID", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := strconv.Atoi(user_id)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
@@ -37,7 +38,7 @@ func GetUserLists(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	defer conn.Release()
 
 	query := `SELECT * FROM get_user_lists($1, $2)`
-	rows, err := conn.Query(context.Background(), query, userID, bookID)
+	rows, err := conn.Query(context.Background(), query, user_id, bookID)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error fetching user lists", http.StatusInternalServerError)
@@ -45,7 +46,7 @@ func GetUserLists(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 	defer rows.Close()
 
-	var lists []dbtypes.ListAddDocument
+	lists := []dbtypes.ListAddDocument{}
 
 	for rows.Next() {
 		var list dbtypes.ListAddDocument

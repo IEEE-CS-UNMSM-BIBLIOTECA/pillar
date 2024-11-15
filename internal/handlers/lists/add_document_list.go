@@ -12,6 +12,7 @@ import (
 )
 
 func AddDocToList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	list_id := ps.ByName("list_id")
 	var req dbtypes.AddDocList
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -27,7 +28,7 @@ func AddDocToList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	defer conn.Release()
 
 	query := `SELECT add_book_to_list($1, $2)`
-	rows, err := conn.Query(context.Background(), query, req.ListID, req.DocumentID)
+	rows, err := conn.Query(context.Background(), query, list_id, req.DocumentID)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error adding the book to the list", http.StatusInternalServerError)

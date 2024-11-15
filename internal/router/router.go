@@ -30,17 +30,17 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/document/:field", handlers.HndOptGetDocumentsBy)
 
 	// BOOKS
-	new_router.GET("/books/:id", books.SendBookById)
-	new_router.GET("/books/:id/reviews", books.SendReviewsById)
-	new_router.POST("/books", books.SendPopularBooks)
-	new_router.POST("/books/new-review", books.AddReviews)
-	new_router.POST("/books/lend", books.RegisterLend)
+	new_router.GET("/books/:id", auth.TokenValidationMiddleware(books.SendBookById))
+	new_router.GET("/books/:id/reviews", auth.TokenValidationMiddleware(books.SendReviewsById))
+	new_router.GET("/books", auth.TokenValidationMiddleware(books.SendPopularBooks))
+	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
+	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
 
 	// LISTS
-	new_router.GET("/books/:id/lists/:user_id", lists.GetUserLists)
-	new_router.POST("/books/lists", lists.AddDocToList)
-	new_router.POST("/books/lists/rename", lists.RenameList)
-	new_router.DELETE("/books/lists", lists.DeleteDocFromList)
+	new_router.GET("/books/:id/lists/", auth.TokenValidationMiddleware(lists.GetUserLists))
+	new_router.POST("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.AddDocToList))
+	new_router.PATCH("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.RenameList))
+	new_router.DELETE("/lists/:list_id/books/:book_id", auth.TokenValidationMiddleware(lists.DeleteDocFromList))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)

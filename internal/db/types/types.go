@@ -69,7 +69,6 @@ type Review struct {
 }
 
 type ReviewRequest struct {
-	UserID     int    `json:"user_id"`
 	DocumentID int    `json:"document_id"`
 	Title      string `json:"title"`
 	Content    string `json:"content"`
@@ -106,9 +105,7 @@ type PopularBook struct {
 }
 
 type RegisterLend struct {
-	BookID       int    `json:"book_id"`
-	UserID       int    `json:"user_id"`
-	MaxRetunDate string `json:"max_return_date"`
+	BookID int `json:"document_id"`
 }
 
 type ListAddDocument struct {
@@ -119,10 +116,8 @@ type ListAddDocument struct {
 
 type AddDocList struct {
 	DocumentID int `json:"document_id"`
-	ListID     int `json:"list_id"`
 }
 
 type RenameList struct {
-	Name   string `json:"name"`
-	ListID int    `json:"list_id"`
+	Title string `json:"title"`
 }

@@ -12,6 +12,8 @@ import (
 )
 
 func RenameList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	list_id := ps.ByName("list_id")
+
 	var req dbtypes.RenameList
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -27,7 +29,7 @@ func RenameList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	defer conn.Release()
 
 	query := `SELECT rename_list($1, $2)`
-	rows, err := conn.Query(context.Background(), query, req.ListID, req.Name)
+	rows, err := conn.Query(context.Background(), query, list_id, req.Title)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error renaming the list", http.StatusInternalServerError)
