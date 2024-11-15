@@ -7,6 +7,7 @@ import (
 	"pillar/internal/handlers/auth/normal_user"
 	"pillar/internal/handlers/books"
 	"pillar/internal/handlers/lists"
+	"pillar/internal/handlers/search"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -40,6 +41,9 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/books/lists", lists.AddDocToList)
 	new_router.POST("/books/lists/rename", lists.RenameList)
 	new_router.DELETE("/books/lists", lists.DeleteDocFromList)
+
+	// SEARCH
+	new_router.GET("/search/:lookup", search.Search)
 
 	return new_router
 }

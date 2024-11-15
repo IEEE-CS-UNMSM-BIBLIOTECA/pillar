@@ -84,15 +84,17 @@ type UserFromReview struct {
 }
 
 type SignUpRequest struct {
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	Name        string `json:"name"`
-	BirthDate   string `json:"birth_date"` // Expecting a date string
-	Address     string `json:"address"`
-	MobilePhone string `json:"mobile_phone"`
-	RoleID      int32  `json:"role_id"`
-	GenderID    int32  `json:"gender_id"`
+	Username            string  `json:"username"`
+	Email               string  `json:"email"`
+	Password            string  `json:"password"`
+	Name                string  `json:"name"`
+	BirthDate           string  `json:"birth_date"` // Expecting a date string
+	Address             string  `json:"address"`
+	MobilePhone         string  `json:"mobile_phone"`
+	RoleID              int32   `json:"role_id"`
+	GenderID            int32   `json:"gender_id"`
+	Bio                 *string `json:"bio"`
+	Profile_picture_url *string `json:"profile_picture_url"`
 }
 
 type PopularBook struct {

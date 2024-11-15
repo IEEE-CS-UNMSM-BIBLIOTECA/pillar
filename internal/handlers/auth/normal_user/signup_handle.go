@@ -23,13 +23,14 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Validate input
 	if req.Username == "" || req.Password == "" || req.Email == "" {
-		w.WriteHeader(http.StatusBadRequest) // Bad request if essential fields are empty
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Hash the password
+	// The best way to security WAOS
+	req.RoleID = 2
+
 	hashedPassword, err := auth.HashPassword(req.Password)
 	if err != nil {
 		log.Println("Error hashing password:", err)
@@ -37,7 +38,6 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Parse birth date
 	birthDate, err := time.Parse("2006-01-02", req.BirthDate) // Expecting format YYYY-MM-DD
 	if err != nil {
 		log.Println("Invalid birth date format:", err)
@@ -45,7 +45,6 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Acquire a database connection
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
 		log.Println("Failed to acquire a database connection:", err)
@@ -54,13 +53,11 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	// Store the user in the database
 	_, err = conn.Exec(context.Background(),
-		"INSERT INTO \"User\" (username, email, bpassword, name, birth_date, address, mobile_phone, role_id, gender_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-		req.Username, req.Email, hashedPassword, req.Name, birthDate, req.Address, req.MobilePhone, req.RoleID, req.GenderID)
+		"INSERT INTO \"User\" (username, email, bpassword, name, birth_date, address, mobile_phone, role_id, gender_id, bio, profile_picture_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+		req.Username, req.Email, hashedPassword, req.Name, birthDate, req.Address, req.MobilePhone, req.RoleID, req.GenderID, req.Bio, req.Profile_picture_url)
 
 	if err != nil {
-		// Handle duplicate username or email error
 		if pgerr, ok := err.(*pgconn.PgError); ok && pgerr.Code == "23505" {
 			log.Println("Conflict error on field:", pgerr.ConstraintName)
 			w.WriteHeader(http.StatusConflict)
@@ -72,7 +69,6 @@ func HndSignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Return success response
-	w.WriteHeader(http.StatusCreated) // Created
+	w.WriteHeader(http.StatusCreated)
 	json.MarshalWrite(w, map[string]string{"message": "User created successfully"}, json.DefaultOptionsV2())
 }
