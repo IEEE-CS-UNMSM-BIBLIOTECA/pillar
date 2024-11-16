@@ -43,7 +43,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.AddDocToList))
 	new_router.POST("/lists", auth.TokenValidationMiddleware(lists.CreateList))
 	new_router.DELETE("/lists/:list_id", auth.TokenValidationMiddleware(lists.EliminateList))
-	new_router.PATCH("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.RenameList))
+	new_router.POST("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.RenameList))
 	new_router.DELETE("/lists/:list_id/books/:book_id", auth.TokenValidationMiddleware(lists.DeleteDocFromList))
 
 	// LISTS SCREEN
@@ -62,6 +62,8 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/dashboard/formats", auth.TokenValidationMiddleware(dashboard.GetFormats))
 	new_router.GET("/dashboard/authors", auth.TokenValidationMiddleware(dashboard.GetAuhors))
 	new_router.GET("/dashboard/genders", auth.TokenValidationMiddleware(dashboard.GetGenders))
+	new_router.GET("/dashboard/documents", auth.TokenValidationMiddleware(dashboard.GetDocuments))
+	new_router.GET("/dashboard/orders", auth.TokenValidationMiddleware(dashboard.GetOrders))
 
 	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))

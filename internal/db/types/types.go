@@ -18,6 +18,8 @@ type Document struct {
 	Isbn                  string   `json:"isbn"`
 	Description           string   `json:"description"`
 	Cover_url             *string  `json:"cover_url"`
+	Language_name         *string  `json:"language_name"`
+	Publisher_name        *string  `json:"publisher_name"`
 }
 
 type Author struct {
@@ -136,4 +138,11 @@ type AddDocList struct {
 
 type RenameList struct {
 	Title string `json:"title"`
+}
+
+type OrderView struct {
+	Id              int32  `json:"id"`
+	Order_date      string `json:"order_date"`
+	Max_return_date string `json:"max_return_date"`
+	User            string `json:"user"`
 }

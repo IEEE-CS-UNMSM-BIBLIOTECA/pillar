@@ -310,7 +310,21 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `SELECT id, title, isbn, description, publication_year, edition, base_price, language_id, publisher_id FROM "Document"`
+	query := `
+		SELECT 
+			d.id, 
+			d.title, 
+			d.isbn, 
+			d.description, 
+			d.publication_year, 
+			d.edition, 
+			d.base_price, 
+			l.name AS language_name, 
+			p.name AS publisher_name
+		FROM "Document" d
+		JOIN "Language" l ON l.id = d.language_id
+		JOIN "Publisher" p ON p.id = d.publisher_id
+	`
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
 		log.Println("Error executing query:", err)
@@ -329,8 +343,8 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			&document.Publication_year,
 			&document.Edition,
 			&document.Base_price,
-			&document.Language_id,
-			&document.Publisher_id,
+			&document.Language_name,
+			&document.Publisher_name,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
@@ -348,6 +362,68 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(documents); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var orders []dbtypes.OrderView
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `
+		SELECT 
+			o.id AS order_id, 
+			o.order_date, 
+			o.max_return_date, 
+			u.name AS user
+		FROM 
+			"Orders" o
+		JOIN 
+			"Users" u ON o.user_id = u.id;
+			`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching orders", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var order dbtypes.OrderView
+
+		err = rows.Scan(
+			&order.Id,
+			&order.Order_date,
+			&order.Max_return_date,
+			&order.User,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		orders = append(orders, order)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	// Set response header to application/json and encode the map
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(orders); err != nil {
 		log.Println("Error encoding response:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
