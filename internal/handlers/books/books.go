@@ -72,7 +72,7 @@ func getUserTopTags(conn *pgxpool.Conn, userID, topLimit int) ([]int, error) {
 
 func getPopularBooks(conn *pgxpool.Conn, page, pageSize int, tagIDs []int) ([]dbtypes.PopularBook, error) {
 	rows, err := conn.Query(context.Background(), `
-        SELECT book_id, title, author_id, author_name, cover_url 
+        SELECT book_id, title, cover_url, authors
         FROM get_popular_books($1, $2, $3)`, page, pageSize, tagIDs)
 	if err != nil {
 		return nil, err
@@ -82,9 +82,20 @@ func getPopularBooks(conn *pgxpool.Conn, page, pageSize int, tagIDs []int) ([]db
 	var books []dbtypes.PopularBook
 	for rows.Next() {
 		var book dbtypes.PopularBook
-		if err := rows.Scan(&book.BookID, &book.Title, &book.AuthorID, &book.AuthorName, &book.CoverURL); err != nil {
+		var authorsJSON []byte
+
+		if err := rows.Scan(&book.BookID, &book.Title, &book.CoverURL, &authorsJSON); err != nil {
 			return nil, err
 		}
+
+		var authors []dbtypes.Author
+		if err := json.Unmarshal(authorsJSON, &authors); err != nil {
+			log.Println("Error unmarshalling authors:", err)
+			return nil, err
+		}
+
+		book.Authors = authors
+
 		books = append(books, book)
 	}
 
