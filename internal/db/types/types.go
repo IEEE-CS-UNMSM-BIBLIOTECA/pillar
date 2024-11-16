@@ -114,7 +114,7 @@ type SignUpRequest struct {
 }
 
 type PopularBook struct {
-	BookID   int      `json:"book_id"`
+	BookID   int      `json:"id"`
 	Title    string   `json:"title"`
 	CoverURL string   `json:"cover_url"`
 	Authors  []Author `json:"authors"`
