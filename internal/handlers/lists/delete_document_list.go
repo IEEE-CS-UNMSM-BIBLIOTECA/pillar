@@ -21,7 +21,7 @@ func DeleteDocFromList(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	}
 	defer conn.Release()
 
-	query := `SELECT remove_book_from_list($1, $2)`
+	query := `DELETE FROM "List_Document" WHERE list_id = $1 AND document_id = $2`
 	rows, err := conn.Query(context.Background(), query, list_id, book_id)
 	if err != nil {
 		log.Println("Error executing query:", err)
