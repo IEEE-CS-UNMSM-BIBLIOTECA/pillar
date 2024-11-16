@@ -154,3 +154,99 @@ func GetCountries(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 }
+
+func GetFormats(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var formats []dbtypes.Format
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT * FROM "Format"`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching formats", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var format dbtypes.Format
+		err = rows.Scan(
+			&format.Id,
+			&format.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		formats = append(formats, format)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(formats); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetAuhors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var authors []dbtypes.Author
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT * FROM "Author"`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching formats", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var author dbtypes.Author
+		err = rows.Scan(
+			&author.Id,
+			&author.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		authors = append(authors, author)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(authors); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
