@@ -93,7 +93,7 @@ func getPopularBooks(conn *pgxpool.Conn, page, pageSize int, tagIDs []int) ([]db
 			log.Println("Error unmarshalling authors:", err)
 			return nil, err
 		}
-		urlImage := fmt.Sprintf("http://143.198.142.139:8080/image/%d", book.BookID)
+		urlImage := fmt.Sprintf("http://143.198.142.139:8080/cover/%d", book.BookID)
 
 		book.Authors = authors
 		book.CoverURL = &urlImage

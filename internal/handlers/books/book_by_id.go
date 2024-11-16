@@ -81,7 +81,7 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	urlImage := fmt.Sprintf("http://143.198.142.139:8080/image/%d", bookID)
+	urlImage := fmt.Sprintf("http://143.198.142.139:8080/cover/%d", bookID)
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {

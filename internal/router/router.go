@@ -75,7 +75,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/search/:lookup", search.Search)
 
 	// IMAGE
-	new_router.GET("/image/:document_id", images.ImageLink)
+	new_router.GET("/cover/:document_id", images.ImageLink)
 
 	return new_router
 }
