@@ -39,7 +39,7 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 		&document.Base_price,
 		&document.Total_copies,
 		&document.Available_copies,
-		&document.Avg_rating,
+		&document.Mean_rating,
 		&language.Id,
 		&language.Name,
 		&publisher.Id,
@@ -91,8 +91,8 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	documentMap := map[string]interface{}{
-		"mean_rating":           document.Avg_rating,
-		"id":                    document.Id,
+		"mean_rating":           document.Mean_rating,
+		"id":                    bookID,
 		"publication_year":      document.Publication_date,
 		"acquisition_date":      document.Acquisition_date,
 		"edition":               document.Edition,

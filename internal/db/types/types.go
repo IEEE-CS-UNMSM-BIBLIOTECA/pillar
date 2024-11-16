@@ -1,27 +1,23 @@
 package types
 
-import (
-	"time"
-)
-
 type Document struct {
-	Publisher_id          int32     `json:"publisher_id"`
-	Avg_rating            *float64  `json:"avg_rating"`
-	Language_id           int32     `json:"language_id"`
-	Format_id             int32     `json:"format_id"`
-	Id                    int32     `json:"id"`
-	Publication_date      int32     `json:"publication_year"`
-	Acquisition_date      time.Time `json:"acquisition_date"`
-	Edition               int32     `json:"edition"`
-	Total_pages           int32     `json:"total_pages"`
-	External_lend_allowed bool      `json:"external_lend_allowed"`
-	Base_price            float64   `json:"base_price"`
-	Total_copies          int32     `json:"total_copies"`
-	Available_copies      int32     `json:"available_copies"`
-	Title                 string    `json:"title"`
-	Isbn                  string    `json:"isbn"`
-	Description           string    `json:"description"`
-	Cover_url             string    `json:"cover_url"`
+	Id                    int32    `json:"id"`
+	Publisher_id          int32    `json:"publisher_id"`
+	Mean_rating           *float64 `json:"mean_rating"`
+	Language_id           int32    `json:"language_id"`
+	Format_id             int32    `json:"format_id"`
+	Publication_date      int32    `json:"publication_year"`
+	Acquisition_date      string   `json:"acquisition_date"`
+	Edition               int32    `json:"edition"`
+	Total_pages           int32    `json:"total_pages"`
+	External_lend_allowed bool     `json:"external_lend_allowed"`
+	Base_price            float64  `json:"base_price"`
+	Total_copies          int32    `json:"total_copies"`
+	Available_copies      int32    `json:"available_copies"`
+	Title                 string   `json:"title"`
+	Isbn                  string   `json:"isbn"`
+	Description           string   `json:"description"`
+	Cover_url             *string  `json:"cover_url"`
 }
 
 type Author struct {
