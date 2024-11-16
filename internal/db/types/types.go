@@ -6,7 +6,7 @@ type Document struct {
 	Mean_rating           *float64 `json:"mean_rating"`
 	Language_id           int32    `json:"language_id"`
 	Format_id             int32    `json:"format_id"`
-	Publication_date      int32    `json:"publication_year"`
+	Publication_year      int32    `json:"publication_year"`
 	Acquisition_date      string   `json:"acquisition_date"`
 	Edition               int32    `json:"edition"`
 	Total_pages           int32    `json:"total_pages"`
@@ -25,6 +25,17 @@ type Author struct {
 	Name string `json:"name"`
 }
 
+type AuthorDashboard struct {
+	Id        int32   `json:"id"`
+	Name      string  `json:"name"`
+	BirthDate string  `json:"birthdate"`
+	DeathDate *string `json:"deathdate"`
+	Bio       string  `json:"bio"`
+	GenderID  int32   `json:"gender_id"`
+	CountryID int32   `json:"country_id"`
+	ImageUrl  *string `json:"image_url"`
+}
+
 type Authors struct {
 	Authors []Author `json:"authors"`
 }
@@ -39,6 +50,11 @@ type Tags struct {
 }
 
 type Language struct {
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+type Country struct {
 	Id   int32  `json:"id"`
 	Name string `json:"name"`
 }

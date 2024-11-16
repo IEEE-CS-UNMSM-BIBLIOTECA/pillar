@@ -9,6 +9,7 @@ import (
 	dbutils "pillar/internal/db/utils"
 	"strconv"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
 )
@@ -22,6 +23,8 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 	var authorsJSON []byte
 	var tagsJson []byte
 
+	var acquisition_date pgtype.Date
+
 	query := `SELECT * FROM get_book_details($1)`
 	row := conn.QueryRow(context.Background(), query, ID)
 
@@ -31,8 +34,8 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 		&document.Isbn,
 		&document.Description,
 		&document.Cover_url,
-		&document.Publication_date,
-		&document.Acquisition_date,
+		&document.Publication_year,
+		&acquisition_date,
 		&document.Edition,
 		&document.Total_pages,
 		&document.External_lend_allowed,
@@ -47,6 +50,8 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 		&authorsJSON,
 		&tagsJson,
 	)
+
+	document.Acquisition_date = acquisition_date.Time.Format("2006-01-02")
 
 	if err != nil {
 		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
@@ -93,7 +98,7 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	documentMap := map[string]interface{}{
 		"mean_rating":           document.Mean_rating,
 		"id":                    bookID,
-		"publication_year":      document.Publication_date,
+		"publication_year":      document.Publication_year,
 		"acquisition_date":      document.Acquisition_date,
 		"edition":               document.Edition,
 		"total_pages":           document.Total_pages,

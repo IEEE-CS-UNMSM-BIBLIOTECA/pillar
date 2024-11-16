@@ -106,3 +106,51 @@ func GetPublishers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 }
+
+func GetCountries(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var countries []dbtypes.Country
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT * FROM "Country"`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching languages", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var countrie dbtypes.Country
+		err = rows.Scan(
+			&countrie.Id,
+			&countrie.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		countries = append(countries, countrie)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(countries); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}

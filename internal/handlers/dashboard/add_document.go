@@ -39,7 +39,7 @@ func AddDocToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
 	_, err = conn.Exec(context.Background(), query, reviewReq.Title, reviewReq.Isbn, reviewReq.Description, reviewReq.Cover_url, acquisition_date,
 		reviewReq.Edition, reviewReq.Total_pages, reviewReq.External_lend_allowed, reviewReq.Base_price, reviewReq.Total_copies, reviewReq.Available_copies,
-		reviewReq.Language_id, reviewReq.Format_id, reviewReq.Publisher_id, reviewReq.Mean_rating, reviewReq.Publication_date)
+		reviewReq.Language_id, reviewReq.Format_id, reviewReq.Publisher_id, reviewReq.Mean_rating, reviewReq.Publication_year)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error inserting the document", http.StatusInternalServerError)

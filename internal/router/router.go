@@ -32,8 +32,8 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/document/:field", handlers.HndOptGetDocumentsBy)
 
 	// BOOKS
-	new_router.GET("/books/:id", auth.TokenValidationMiddleware(books.SendBookById))
-	new_router.GET("/books/:id/reviews", auth.TokenValidationMiddleware(books.SendReviewsById))
+	new_router.GET("/books/:id", books.SendBookById)
+	new_router.GET("/books/:id/reviews", books.SendReviewsById)
 	new_router.GET("/books", auth.TokenValidationMiddleware(books.SendPopularBooks))
 	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
@@ -55,9 +55,12 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.DELETE("/like/list/:id", auth.TokenValidationMiddleware(likes.RemoveLikeList))
 
 	// DASHBOARD
-	new_router.GET("/languages", auth.TokenValidationMiddleware(dashboard.GetLanguages))
-	new_router.GET("/publishers", auth.TokenValidationMiddleware(dashboard.GetPublishers))
-	new_router.POST("/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
+	new_router.GET("/dashboard/languages", auth.TokenValidationMiddleware(dashboard.GetLanguages))
+	new_router.GET("/dashboard/publishers", auth.TokenValidationMiddleware(dashboard.GetPublishers))
+	new_router.GET("/dashboard/countries", auth.TokenValidationMiddleware(dashboard.GetCountries))
+	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
+	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
+	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)
