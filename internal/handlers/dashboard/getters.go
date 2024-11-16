@@ -7,6 +7,7 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -384,7 +385,7 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			o.id AS order_id, 
 			o.order_date, 
 			o.max_return_date, 
-			u.name AS user
+			u.username AS user
 		FROM 
 			"Order" o
 		JOIN 
@@ -401,10 +402,13 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	for rows.Next() {
 		var order dbtypes.OrderView
 
+		var orderDate time.Time
+		var maxReturnDate time.Time
+
 		err = rows.Scan(
 			&order.Id,
-			&order.Order_date,
-			&order.Max_return_date,
+			&orderDate,
+			&maxReturnDate,
 			&order.User,
 		)
 		if err != nil {
@@ -412,6 +416,10 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			http.Error(w, "Error processing data", http.StatusInternalServerError)
 			return
 		}
+
+		order.Order_date = orderDate.Format("2006-01-02")
+		order.Max_return_date = maxReturnDate.Format("2006-01-02")
+
 		orders = append(orders, order)
 	}
 
