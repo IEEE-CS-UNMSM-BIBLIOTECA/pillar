@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -26,11 +27,17 @@ func AddAuthor(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	death_date, err := time.Parse("2006-01-02", *reviewReq.DeathDate) // Expecting format YYYY-MM-DD
-	if err != nil {
-		log.Println("Invalid birth date format:", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	var death_date sql.NullTime
+	if reviewReq.DeathDate != nil {
+		parsedDate, err := time.Parse("2006-01-02", *reviewReq.DeathDate)
+		if err != nil {
+			log.Println("Invalid death date format:", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		death_date = sql.NullTime{Time: parsedDate, Valid: true}
+	} else {
+		death_date = sql.NullTime{Valid: false}
 	}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())

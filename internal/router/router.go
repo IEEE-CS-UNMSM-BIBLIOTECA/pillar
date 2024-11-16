@@ -61,11 +61,12 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/dashboard/countries", auth.TokenValidationMiddleware(dashboard.GetCountries))
 	new_router.GET("/dashboard/formats", auth.TokenValidationMiddleware(dashboard.GetFormats))
 	new_router.GET("/dashboard/authors", auth.TokenValidationMiddleware(dashboard.GetAuhors))
+	new_router.GET("/dashboard/genders", auth.TokenValidationMiddleware(dashboard.GetGenders))
 
 	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
 	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
-	new_router.POST("/dashboard/author-document", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
+	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)

@@ -69,6 +69,11 @@ type Format struct {
 	Name string `json:"name"`
 }
 
+type Gender struct {
+	Id   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
 type Review struct {
 	Id          int32          `json:"id"`
 	Title       string         `json:"title"`

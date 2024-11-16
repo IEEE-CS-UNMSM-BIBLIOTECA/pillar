@@ -2,19 +2,26 @@ package dashboard
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
-	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func AddAuthorDocument(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var reviewReq dbtypes.AuthorDashboard
-	if err := json.NewDecoder(r.Body).Decode(&reviewReq); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+func AddAuthorDocument(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	author_id := ps.ByName("author_id")
+	authorID, err := strconv.Atoi(author_id)
+	if err != nil {
+		http.Error(w, "Invalid document id", http.StatusBadRequest)
+		return
+	}
+
+	document_id := ps.ByName("document_id")
+	documentID, err := strconv.Atoi(document_id)
+	if err != nil {
+		http.Error(w, "Invalid document id", http.StatusBadRequest)
 		return
 	}
 
@@ -26,10 +33,8 @@ func AddAuthorDocument(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 	}
 	defer conn.Release()
 
-	query := `INSERT INTO "Author_Document" (author_id, birth_date) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = conn.Exec(context.Background(), query, reviewReq.Name, reviewReq.Bio, reviewReq.GenderID,
-		reviewReq.CountryID, reviewReq.ImageUrl)
+	query := `INSERT INTO "Author_Document" (author_id, document_id) VALUES ($1, $2)`
+	_, err = conn.Exec(context.Background(), query, authorID, documentID)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error inserting the document", http.StatusInternalServerError)
@@ -37,5 +42,5 @@ func AddAuthorDocument(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "Author added successfully"}`))
+	w.Write([]byte(`{"message": "Author_document added successfully"}`))
 }

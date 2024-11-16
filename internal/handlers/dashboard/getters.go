@@ -166,7 +166,7 @@ func GetFormats(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `SELECT * FROM "Format"`
+	query := `SELECT * FROM "DocumentFormat"`
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
 		log.Println("Error executing query:", err)
@@ -214,7 +214,7 @@ func GetAuhors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `SELECT * FROM "Author"`
+	query := `SELECT id, name FROM "Author"`
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
 		log.Println("Error executing query:", err)
@@ -245,6 +245,54 @@ func GetAuhors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(authors); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetGenders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var genders []dbtypes.Gender
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT id, name FROM "Gender"`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching genders", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var gender dbtypes.Gender
+		err = rows.Scan(
+			&gender.Id,
+			&gender.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		genders = append(genders, gender)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(genders); err != nil {
 		log.Println("Error encoding response:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
