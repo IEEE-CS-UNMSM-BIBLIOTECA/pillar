@@ -8,6 +8,7 @@ import (
 	"pillar/internal/handlers/books"
 	"pillar/internal/handlers/dashboard"
 	"pillar/internal/handlers/images"
+	"pillar/internal/handlers/lends"
 	"pillar/internal/handlers/likes"
 	"pillar/internal/handlers/lists"
 	"pillar/internal/handlers/search"
@@ -77,6 +78,9 @@ func NewPillarRouter() *httprouter.Router {
 
 	// IMAGE
 	new_router.GET("/cover/:document_id", images.ImageLink)
+
+	// LENDS
+	new_router.GET("/lends", auth.TokenValidationMiddleware(lends.GetLendsByUser))
 
 	return new_router
 }

@@ -146,3 +146,11 @@ type OrderView struct {
 	Max_return_date string  `json:"max_return_date"`
 	User            *string `json:"user"`
 }
+
+type OrderRequest struct {
+	Id                 int32       `json:"id"`
+	Document           PopularBook `json:"document"`
+	Order_date         string      `json:"order_date"`
+	Max_return_date    string      `json:"max_return_date"`
+	Actual_return_date *string     `json:"actual_return_date"`
+}
