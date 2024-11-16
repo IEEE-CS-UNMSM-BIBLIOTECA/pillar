@@ -57,6 +57,19 @@ func AddDocToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "Document added successfully"}`))
+	query = `SELECT id FROM "Document" WHERE isbn = $1`
+	var document_id int32
+	err = conn.QueryRow(context.Background(), query, reviewReq.Isbn).Scan(&document_id)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error retrieving id", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(document_id); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

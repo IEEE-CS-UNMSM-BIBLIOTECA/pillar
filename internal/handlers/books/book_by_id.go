@@ -127,7 +127,6 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		response[key] = value
 	}
 
-	// Set the response header to application/json and encode the result into JSON
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

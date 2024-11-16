@@ -53,7 +53,6 @@ func ValidateJWT(tokenStr string) (*jwt.Token, error) {
 // Middleware to validate JWT token for each protected endpoint
 func TokenValidationMiddleware(next httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		// Extract the token from the Authorization header
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "Missing authorization header", http.StatusUnauthorized)
@@ -61,7 +60,7 @@ func TokenValidationMiddleware(next httprouter.Handle) httprouter.Handle {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		if tokenString == authHeader { // Check if the header contains 'Bearer'
+		if tokenString == authHeader {
 			http.Error(w, "Malformed authorization header", http.StatusUnauthorized)
 			return
 		}

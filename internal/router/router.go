@@ -70,6 +70,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
 	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
 	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
+	new_router.POST("/dashboard/order/:order_id", auth.TokenValidationMiddleware(dashboard.FinishOrder))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)
