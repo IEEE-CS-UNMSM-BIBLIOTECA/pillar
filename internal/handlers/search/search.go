@@ -3,9 +3,11 @@ package search
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
+	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
 
 	"github.com/julienschmidt/httprouter"
@@ -27,18 +29,22 @@ func Search(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	defer conn.Release()
 
 	query := `
-		SELECT DISTINCT d.id,
-				d."title",
-				a."name" AS autor,
-				a.id AS autor_id,
-				d.cover_url
+		SELECT 
+			d.id,
+			d.title,
+			COALESCE(
+				(SELECT jsonb_agg(jsonb_build_object('id', a.id, 'name', a.name))
+				FROM "Author_Document" ad
+				JOIN "Author" a ON ad.author_id = a.id
+				WHERE ad.document_id = d.id),
+				'[]'::jsonb
+			) AS authors
 		FROM "Document" d
-		LEFT JOIN "Author_Document" ad ON d.id = ad.document_id
-		LEFT JOIN "Author" a ON ad.author_id = a.id
 		LEFT JOIN "Tag_Document" td ON d.id = td.document_id
 		LEFT JOIN "Tag" t ON td.tag_id = t.id
-		WHERE d."title" ILIKE '%' || $1 || '%'
-		OR t."name" ILIKE '%' || $1 || '%';
+		WHERE d.title ILIKE '%' || $1 || '%'
+		OR t.name ILIKE '%' || $1 || '%'
+		GROUP BY d.id, d.title, d.cover_url;
 	`
 
 	rows, err := conn.Query(context.Background(), query, lookup)
@@ -53,22 +59,32 @@ func Search(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	for rows.Next() {
 		var id int
-		var title, authorName, coverUrl *string
-		var authorID *int
+		var title *string
+		var authorsJSON []byte
 
-		err = rows.Scan(&id, &title, &authorName, &authorID, &coverUrl)
+		err = rows.Scan(&id, &title, &authorsJSON)
 		if err != nil {
 			log.Println("Error scanning row:", err)
 			http.Error(w, "Error processing result", http.StatusInternalServerError)
 			return
 		}
 
+		var authors dbtypes.Authors
+
+		log.Printf("Authors JSON: %s\n", authorsJSON)
+		if err := json.Unmarshal(authorsJSON, &authors.Authors); err != nil {
+			log.Println("Failed to parse authors:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		urlImage := fmt.Sprintf("http://143.198.142.139:8080/cover/%d", id)
+
 		result := map[string]interface{}{
 			"id":        id,
 			"title":     title,
-			"author":    authorName,
-			"author_id": authorID,
-			"cover_url": coverUrl,
+			"authors":   authors.Authors,
+			"cover_url": urlImage,
 		}
 
 		results = append(results, result)
