@@ -386,9 +386,9 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			o.max_return_date, 
 			u.name AS user
 		FROM 
-			"Orders" o
+			"Order" o
 		JOIN 
-			"Users" u ON o.user_id = u.id;
+			"User" u ON o.user_id = u.id;
 			`
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
