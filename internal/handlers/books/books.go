@@ -101,7 +101,7 @@ func SendPopularBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 	}
 
 	page := 1
-	pageSize := 10
+	pageSize := 100
 
 	// Parse query parameters
 	queryParams := r.URL.Query()

@@ -6,6 +6,7 @@ import (
 	"pillar/internal/handlers/auth/admin"
 	"pillar/internal/handlers/auth/normal_user"
 	"pillar/internal/handlers/books"
+	"pillar/internal/handlers/likes"
 	"pillar/internal/handlers/lists"
 	"pillar/internal/handlers/search"
 
@@ -36,12 +37,21 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
 
-	// LISTS
+	// LISTS BOOK
 	new_router.GET("/books/:id/lists/", auth.TokenValidationMiddleware(lists.GetUserLists))
 	new_router.POST("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.AddDocToList))
 	new_router.POST("/lists", auth.TokenValidationMiddleware(lists.CreateList))
 	new_router.PATCH("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.RenameList))
 	new_router.DELETE("/lists/:list_id/books/:book_id", auth.TokenValidationMiddleware(lists.DeleteDocFromList))
+
+	// LISTS SCREEN
+	new_router.GET("/lists", auth.TokenValidationMiddleware(lists.GetAllLists))
+
+	// LIKES
+	new_router.PUT("/like/review/:id", auth.TokenValidationMiddleware(likes.AddLikeReview))
+	new_router.DELETE("/like/review/:id", auth.TokenValidationMiddleware(likes.RemoveLikeReview))
+	new_router.PUT("/like/list/:id", auth.TokenValidationMiddleware(likes.AddLikeList))
+	new_router.DELETE("/like/list/:id", auth.TokenValidationMiddleware(likes.RemoveLikeList))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)

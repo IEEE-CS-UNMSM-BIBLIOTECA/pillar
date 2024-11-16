@@ -7,15 +7,28 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var req struct {
-		PageSize int    `json:"page_size"`
-		Page     int    `json:"page"`
-		Tags     *[]int `json:"tags"`
+	page := 1
+	pageSize := 100
+
+	queryParams := r.URL.Query()
+	if p := queryParams.Get("page"); p != "" {
+		parsedPage, err := strconv.Atoi(p)
+		if err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
+	}
+
+	if l := queryParams.Get("limit"); l != "" {
+		parsedLimit, err := strconv.Atoi(l)
+		if err == nil && parsedLimit > 0 {
+			pageSize = parsedLimit
+		}
 	}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
@@ -27,7 +40,7 @@ func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	defer conn.Release()
 
 	query := `SELECT * FROM get_all_lists($1, $2, $3)`
-	rows, err := conn.Query(context.Background(), query, req.PageSize, req.Page, req.Tags)
+	rows, err := conn.Query(context.Background(), query, page, pageSize)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error fetching user lists", http.StatusInternalServerError)
