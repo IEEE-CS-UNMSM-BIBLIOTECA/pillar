@@ -116,7 +116,7 @@ type SignUpRequest struct {
 type PopularBook struct {
 	BookID   int      `json:"id"`
 	Title    string   `json:"title"`
-	CoverURL string   `json:"cover_url"`
+	CoverURL *string  `json:"cover_url"`
 	Authors  []Author `json:"authors"`
 }
 

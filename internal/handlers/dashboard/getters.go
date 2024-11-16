@@ -298,3 +298,58 @@ func GetGenders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 }
+
+func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var documents []dbtypes.Document
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT id, title, isbn, description, publication_year, edition, base_price, language_id, publisher_id FROM "Document"`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching genders", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var document dbtypes.Document
+		err = rows.Scan(
+			&document.Id,
+			&document.Title,
+			&document.Isbn,
+			&document.Description,
+			&document.Publication_year,
+			&document.Edition,
+			&document.Base_price,
+			&document.Language_id,
+			&document.Publisher_id,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		documents = append(documents, document)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(documents); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
