@@ -3,6 +3,7 @@ package books
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	dbtypes "pillar/internal/db/types"
@@ -80,6 +81,8 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
+	urlImage := fmt.Sprintf("http://143.198.142.139:8080/image/%d", bookID)
+
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
 		log.Println("Failed to acquire a database connection:", err)
@@ -109,7 +112,7 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		"title":                 document.Title,
 		"isbn":                  document.Isbn,
 		"description":           document.Description,
-		"cover_url":             document.Cover_url,
+		"cover_url":             urlImage,
 	}
 
 	// Construct a combined response

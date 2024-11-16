@@ -7,6 +7,7 @@ import (
 	"pillar/internal/handlers/auth/normal_user"
 	"pillar/internal/handlers/books"
 	"pillar/internal/handlers/dashboard"
+	"pillar/internal/handlers/images"
 	"pillar/internal/handlers/likes"
 	"pillar/internal/handlers/lists"
 	"pillar/internal/handlers/search"
@@ -65,13 +66,16 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/dashboard/documents", auth.TokenValidationMiddleware(dashboard.GetDocuments))
 	new_router.GET("/dashboard/orders", auth.TokenValidationMiddleware(dashboard.GetOrders))
 
-	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
+	new_router.POST("/dashboard/document", dashboard.AddDocToDB)
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
 	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
 	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)
+
+	// IMAGE
+	new_router.GET("/image/:document_id", images.ImageLink)
 
 	return new_router
 }
