@@ -91,8 +91,8 @@ func Search(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	if len(results) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"message": "No documents found"}`))
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("[]"))
 		return
 	}
 
