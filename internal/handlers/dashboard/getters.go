@@ -437,3 +437,59 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 }
+
+func GetAuthorsByDoc(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	document_id := ps.ByName("document_id")
+
+	conn, err := dbutils.DbPool.Acquire(context.Background())
+	if err != nil {
+		log.Println("Failed to acquire a database connection:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer conn.Release()
+
+	query := `SELECT a.id, a.name
+	FROM "Author" a 
+	JOIN "Author_Document" ad ON a.id = ad.author_id
+	JOIN "Document" d ON ad.document_id = d.id
+	WHERE d.id =$1`
+	rows, err := conn.Query(context.Background(), query, document_id)
+	if err != nil {
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching orders", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var authors = []dbtypes.Author{}
+	for rows.Next() {
+		var author dbtypes.Author
+
+		err = rows.Scan(
+			&author.Id,
+			&author.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+
+		authors = append(authors, author)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Error iterating over rows:", err)
+		http.Error(w, "Error processing data", http.StatusInternalServerError)
+		return
+	}
+
+	// Set response header to application/json and encode the map
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(authors); err != nil {
+		log.Println("Error encoding response:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
