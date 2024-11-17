@@ -385,7 +385,8 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			o.id AS order_id, 
 			o.order_date, 
 			o.max_return_date, 
-			u.username AS user
+			u.id AS user_id
+			u.username AS name
 		FROM 
 			"Order" o
 		JOIN 
@@ -409,7 +410,8 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			&order.Id,
 			&orderDate,
 			&maxReturnDate,
-			&order.User,
+			&order.User.Id,
+			&order.User.Name,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
