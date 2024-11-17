@@ -20,11 +20,17 @@ func AddAuthor(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	birth_date, err := time.Parse("2006-01-02", reviewReq.BirthDate) // Expecting format YYYY-MM-DD
-	if err != nil {
-		log.Println("Invalid birth date format:", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	var birth_date sql.NullTime
+	if reviewReq.BirthDate != nil {
+		parsedDate, err := time.Parse("2006-01-02", *reviewReq.BirthDate)
+		if err != nil {
+			log.Println("Invalid death date format:", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		birth_date = sql.NullTime{Time: parsedDate, Valid: true}
+	} else {
+		birth_date = sql.NullTime{Valid: false}
 	}
 
 	var death_date sql.NullTime

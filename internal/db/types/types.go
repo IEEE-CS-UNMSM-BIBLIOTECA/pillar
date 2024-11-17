@@ -32,7 +32,7 @@ type Author struct {
 type AuthorDashboard struct {
 	Id        int32   `json:"id"`
 	Name      string  `json:"name"`
-	BirthDate string  `json:"birth_date"`
+	BirthDate *string `json:"birth_date"`
 	DeathDate *string `json:"death_date"`
 	Bio       string  `json:"bio"`
 	GenderID  int32   `json:"gender_id"`
