@@ -48,10 +48,10 @@ func AddAuthor(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `INSERT INTO "Author" (name, birth_date, death_date, bio, gender_id, country_id, image_url) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	query := `INSERT INTO "Author" (name, birth_date, death_date, bio, gender_id, country_id) 
+	VALUES ($1, $2, $3, $4, $5, $6)`
 	_, err = conn.Exec(context.Background(), query, reviewReq.Name, birth_date, death_date, reviewReq.Bio, reviewReq.GenderID,
-		reviewReq.CountryID, reviewReq.ImageUrl)
+		reviewReq.CountryID)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error inserting the document", http.StatusInternalServerError)
