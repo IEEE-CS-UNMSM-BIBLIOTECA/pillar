@@ -157,10 +157,11 @@ type RenameList struct {
 }
 
 type OrderView struct {
-	Id              int32  `json:"id"`
-	Order_date      string `json:"order_date"`
-	Max_return_date string `json:"max_return_date"`
-	User            User   `json:"user"`
+	Id              int32    `json:"id"`
+	Order_date      string   `json:"order_date"`
+	Max_return_date string   `json:"max_return_date"`
+	User            User     `json:"user"`
+	Document        Document `json:"document"`
 }
 
 type OrderRequest struct {
