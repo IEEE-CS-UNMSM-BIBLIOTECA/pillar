@@ -53,6 +53,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/lists", auth.TokenValidationMiddleware(lists.GetAllLists))
 	new_router.GET("/lists/books/:list_id", auth.TokenValidationMiddleware(books.GetBooksFromList))
 	new_router.GET("/list/:list_id", auth.TokenValidationMiddleware(lists.GetListById))
+	new_router.GET("/user/lists/:user_id", auth.TokenValidationMiddleware(lists.GetListByUserId))
 
 	// LIKES
 	new_router.PUT("/like/review/:id", auth.TokenValidationMiddleware(likes.AddLikeReview))

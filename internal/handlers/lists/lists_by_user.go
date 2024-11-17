@@ -13,13 +13,13 @@ import (
 )
 
 func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	// user_lookup := ps.ByName("user_id")
+	user_lookup := ps.ByName("user_id")
 
 	username, hasToken := r.Context().Value("username").(string)
-	var user_id int
+	var requesterID int
 	if hasToken {
-		user_id = auth.GetIdFromUsername(username)
-		if user_id == 0 {
+		requesterID = auth.GetIdFromUsername(username)
+		if requesterID == 0 {
 			http.Error(w, "That username does not exist", http.StatusBadRequest)
 			return
 		}
@@ -33,37 +33,61 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	defer conn.Release()
 
-	var list dbtypes.List
 	query := `
-	SELECT * FROM "List"
-	JOIN "ListLike" lk ON 
-	WHERE user_id = $1 AND private = false
+	SELECT 
+	l.id,
+	l.title,
+	l.total_likes,
+	l.total_books,
+	CASE WHEN $1 = l.user_id THEN l.private ELSE false END AS is_private,
+	EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
+	l.user_id = $1 AS own,
+	u.id AS user_id,
+	u.name AS user_name
+	FROM "List" l
+	JOIN "User" u ON l.user_id = u.id
+	WHERE l.user_id = $2 AND ($1 = $2 OR l.private = false)
 	`
-	err = conn.QueryRow(context.Background(), query, user_id).Scan(
-		&list.Id,
-		&list.Title,
-		&list.Total_likes,
-		&list.Total_books,
-		&list.Liked,
-		&list.Own,
-		&list.User.Id,
-		&list.User.Name,
-	)
+	rows, err := conn.Query(context.Background(), query, requesterID, user_lookup)
 	if err != nil {
-		if err.Error() == "no rows in result set" {
-			http.Error(w, "List not found", http.StatusNotFound)
-		} else {
-			log.Println("Error executing query:", err)
-			http.Error(w, "Error fetching list", http.StatusInternalServerError)
+		log.Println("Error executing query:", err)
+		http.Error(w, "Error fetching lists", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var lists = []dbtypes.List{}
+
+	for rows.Next() {
+		var list dbtypes.List
+		err = rows.Scan(
+			&list.Id,
+			&list.Title,
+			&list.Total_likes,
+			&list.Total_books,
+			&list.Private,
+			&list.Liked,
+			&list.Own,
+			&list.User.Id,
+			&list.User.Name,
+		)
+		if err != nil {
+			log.Println("Error scanning row:", err)
+			http.Error(w, "Error processing lists", http.StatusInternalServerError)
+			return
 		}
+		lists = append(lists, list)
+	}
+
+	if len(lists) == 0 {
+		http.Error(w, "No lists found", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(list); err != nil {
+	if err := json.NewEncoder(w).Encode(lists); err != nil {
 		log.Println("Error encoding response:", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
 }

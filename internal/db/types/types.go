@@ -32,8 +32,8 @@ type Author struct {
 type AuthorDashboard struct {
 	Id        int32   `json:"id"`
 	Name      string  `json:"name"`
-	BirthDate string  `json:"birthdate"`
-	DeathDate *string `json:"deathdate"`
+	BirthDate string  `json:"birth_date"`
+	DeathDate *string `json:"death_date"`
 	Bio       string  `json:"bio"`
 	GenderID  int32   `json:"gender_id"`
 	CountryID int32   `json:"country_id"`
@@ -88,6 +88,7 @@ type Review struct {
 	Liked       bool           `json:"liked"`
 	User        UserFromReview `json:"user"`
 	Spoiler     bool           `json:"spoiler"`
+	Own         bool           `json:"bool"`
 }
 
 type ReviewRequest struct {
