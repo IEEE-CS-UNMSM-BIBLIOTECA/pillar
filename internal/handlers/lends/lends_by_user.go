@@ -54,7 +54,7 @@ func GetLendsByUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params
         JOIN "Document" d ON o.document_id = d.id
         LEFT JOIN "Author_Document" da ON d.id = da.document_id
         LEFT JOIN "Author" a ON da.author_id = a.id
-        WHERE o.user_id = $1
+        WHERE o.user_id = $1 AND o.actual_return_date IS NULL
         GROUP BY o.id, d.id;
     `
 

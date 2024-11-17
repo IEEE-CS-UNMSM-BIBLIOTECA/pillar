@@ -127,14 +127,15 @@ type RegisterLend struct {
 }
 
 type List struct {
-	Id             int      `json:"id"`
-	Title          string   `json:"title"`
-	Total_likes    int      `json:"total_likes"`
-	Total_books    int      `json:"total_books"`
-	Preview_images []string `json:"preview_images"`
-	Private        *bool    `json:"private"`
-	Liked          bool     `json:"liked"`
-	Own            bool     `json:"own"`
+	Id             int            `json:"id"`
+	Title          string         `json:"title"`
+	Total_likes    int            `json:"total_likes"`
+	Total_books    int            `json:"total_books"`
+	Preview_images []string       `json:"preview_images"`
+	Private        *bool          `json:"private"`
+	Liked          bool           `json:"liked"`
+	Own            bool           `json:"own"`
+	User           UserFromReview `json:"user"`
 }
 
 type ListAddDocument struct {
