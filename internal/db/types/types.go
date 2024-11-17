@@ -126,6 +126,17 @@ type RegisterLend struct {
 	BookID int `json:"document_id"`
 }
 
+type List struct {
+	Id             int      `json:"id"`
+	Title          string   `json:"title"`
+	Total_likes    int      `json:"total_likes"`
+	Total_books    int      `json:"total_books"`
+	Preview_images []string `json:"preview_images"`
+	Private        *bool    `json:"private"`
+	Liked          bool     `json:"liked"`
+	Own            bool     `json:"own"`
+}
+
 type ListAddDocument struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`

@@ -105,12 +105,14 @@ func getPopularBooks(conn *pgxpool.Conn, page, pageSize int, tagIDs []int) ([]db
 }
 
 func SendPopularBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	username := r.Context().Value("username").(string)
-
-	user_id := auth.GetIdFromUsername(username)
-	if user_id == 0 {
-		http.Error(w, "That username does not exist", http.StatusBadRequest)
-		return
+	username, hasToken := r.Context().Value("username").(string)
+	var user_id int
+	if hasToken {
+		user_id = auth.GetIdFromUsername(username)
+		if user_id == 0 {
+			http.Error(w, "That username does not exist", http.StatusBadRequest)
+			return
+		}
 	}
 
 	page := 1

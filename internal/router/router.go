@@ -36,7 +36,7 @@ func NewPillarRouter() *httprouter.Router {
 	// BOOKS
 	new_router.GET("/books/:id", books.SendBookById)
 	new_router.GET("/books/:id/reviews", books.SendReviewsById)
-	new_router.GET("/books-user", books.SendPopularBooks)
+	new_router.GET("/books-public", books.SendPopularBooks)
 	new_router.GET("/books", auth.TokenValidationMiddleware(books.SendPopularBooks))
 	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))

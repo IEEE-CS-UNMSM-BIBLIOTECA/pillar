@@ -7,12 +7,21 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"pillar/internal/handlers/auth"
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	username := r.Context().Value("username").(string)
+
+	user_id := auth.GetIdFromUsername(username)
+	if user_id == 0 {
+		http.Error(w, "That username does not exist", http.StatusBadRequest)
+		return
+	}
+
 	page := 1
 	pageSize := 100
 
@@ -39,8 +48,8 @@ func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `SELECT * FROM get_all_lists($1, $2, $3)`
-	rows, err := conn.Query(context.Background(), query, page, pageSize)
+	query := `SELECT * FROM get_all_lists($1, $2, $3, $4)`
+	rows, err := conn.Query(context.Background(), query, user_id, pageSize, page, nil)
 	if err != nil {
 		log.Println("Error executing query:", err)
 		http.Error(w, "Error fetching user lists", http.StatusInternalServerError)
@@ -48,14 +57,19 @@ func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer rows.Close()
 
-	var lists []dbtypes.ListAddDocument
+	var lists []dbtypes.List
 
 	for rows.Next() {
-		var list dbtypes.ListAddDocument
+		var list dbtypes.List
 		err = rows.Scan(
-			&list.ID,
+			&list.Id,
 			&list.Title,
-			&list.HasDocument,
+			&list.Total_likes,
+			&list.Total_books,
+			&list.Preview_images,
+			&list.Private,
+			&list.Liked,
+			&list.Own,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
