@@ -170,3 +170,9 @@ type OrderRequest struct {
 	Max_return_date    string      `json:"max_return_date"`
 	Actual_return_date *string     `json:"actual_return_date"`
 }
+
+type User struct {
+	Id   int32   `json:"id"`
+	Name string  `json:"name"`
+	Bio  *string `json:"bio"`
+}

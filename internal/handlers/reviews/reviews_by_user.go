@@ -32,7 +32,6 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		return
 	}
 
-	// Open database connection
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
 		log.Println("Failed to acquire a database connection:", err)
@@ -50,9 +49,6 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		r.rating,
 		r.spoiler,
 		CASE WHEN $1 = r.user_id THEN true ELSE false END AS own,
-		u.id AS user_id,
-		u.name AS user_name,
-		u.profile_picture_url
 	FROM "Review" r
 	JOIN "User" u ON r.user_id = u.id
 	WHERE r.user_id = $2
@@ -76,9 +72,6 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 			&review.Rating,
 			&review.Spoiler,
 			&review.Own,
-			&review.User.Id,
-			&review.User.Name,
-			&review.User.Profile_picture_url,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)

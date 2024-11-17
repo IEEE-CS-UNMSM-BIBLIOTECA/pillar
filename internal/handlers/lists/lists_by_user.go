@@ -42,8 +42,6 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	CASE WHEN $1 = l.user_id THEN l.private ELSE false END AS is_private,
 	EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
 	l.user_id = $1 AS own,
-	u.id AS user_id,
-	u.name AS user_name
 	FROM "List" l
 	JOIN "User" u ON l.user_id = u.id
 	WHERE l.user_id = $2 AND ($1 = $2 OR l.private = false)
@@ -68,8 +66,6 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 			&list.Private,
 			&list.Liked,
 			&list.Own,
-			&list.User.Id,
-			&list.User.Name,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)

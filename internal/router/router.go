@@ -11,7 +11,9 @@ import (
 	"pillar/internal/handlers/lends"
 	"pillar/internal/handlers/likes"
 	"pillar/internal/handlers/lists"
+	"pillar/internal/handlers/reviews"
 	"pillar/internal/handlers/search"
+	"pillar/internal/handlers/user"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -53,7 +55,6 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/lists", auth.TokenValidationMiddleware(lists.GetAllLists))
 	new_router.GET("/lists/books/:list_id", auth.TokenValidationMiddleware(books.GetBooksFromList))
 	new_router.GET("/list/:list_id", auth.TokenValidationMiddleware(lists.GetListById))
-	new_router.GET("/user/lists/:user_id", auth.TokenValidationMiddleware(lists.GetListByUserId))
 
 	// LIKES
 	new_router.PUT("/like/review/:id", auth.TokenValidationMiddleware(likes.AddLikeReview))
@@ -88,6 +89,11 @@ func NewPillarRouter() *httprouter.Router {
 
 	// LENDS
 	new_router.GET("/lends", auth.TokenValidationMiddleware(lends.GetLendsByUser))
+
+	// USER LISTS AND REVIEWS
+	new_router.GET("/user/screen/:user_id", auth.TokenValidationMiddleware(user.GetUserById))
+	new_router.GET("/user/reviews/:user_id", auth.TokenValidationMiddleware(reviews.GetReviewsByUserId))
+	new_router.GET("/user/lists/:user_id", auth.TokenValidationMiddleware(lists.GetListByUserId))
 
 	return new_router
 }
