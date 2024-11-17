@@ -43,8 +43,9 @@ type Authors struct {
 }
 
 type Tag struct {
-	Id   int32  `json:"id"`
-	Name string `json:"name"`
+    Id   int32  `json:"id" db:"id"`
+    Name string `json:"name" db:"name"`
+    Mean *float64 `json:"mean_rating" db:"mean_rating"`
 }
 
 type Tags struct {

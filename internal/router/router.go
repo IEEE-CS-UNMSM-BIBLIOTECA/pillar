@@ -70,6 +70,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/dashboard/documents", auth.TokenValidationMiddleware(dashboard.GetDocuments))
 	new_router.GET("/dashboard/orders", auth.TokenValidationMiddleware(dashboard.GetOrders))
 	new_router.GET("/dashboard/authors/:document_id", auth.TokenValidationMiddleware(dashboard.GetAuthorsByDoc))
+	new_router.GET("/dashboard/alltags/", auth.TokenValidationMiddleware(dashboard.GetAllTags))
 
 	new_router.POST("/dashboard/document", dashboard.AddDocToDB)
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
