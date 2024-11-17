@@ -24,7 +24,7 @@ func GetBooksFromList(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	defer conn.Release()
 
 	query := `
-	SELECT * FROM get_document_by_list($1);
+	SELECT * FROM get_documents_by_list($1);
 	`
 	rows, err := conn.Query(context.Background(), query, list_id)
 	if err != nil {

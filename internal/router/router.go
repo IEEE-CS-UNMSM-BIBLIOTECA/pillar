@@ -72,11 +72,12 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/dashboard/authors/:document_id", auth.TokenValidationMiddleware(dashboard.GetAuthorsByDoc))
 	new_router.GET("/dashboard/alltags/", auth.TokenValidationMiddleware(dashboard.GetAllTags))
 
-	new_router.POST("/dashboard/document", dashboard.AddDocToDB)
+	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
 	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
 	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
 	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
 	new_router.POST("/dashboard/order/:order_id", auth.TokenValidationMiddleware(dashboard.FinishOrder))
+	new_router.POST("/dashboard/tag", auth.TokenValidationMiddleware(dashboard.AddTag))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)

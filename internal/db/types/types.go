@@ -20,6 +20,8 @@ type Document struct {
 	Cover_url             *string  `json:"cover_url"`
 	Language_name         *string  `json:"language_name"`
 	Publisher_name        *string  `json:"publisher_name"`
+	Authors_id            []int32  `json:"authors_id"`
+	Tags_id               []int32  `json:"tags_id"`
 }
 
 type Author struct {
@@ -43,9 +45,9 @@ type Authors struct {
 }
 
 type Tag struct {
-    Id   int32  `json:"id" db:"id"`
-    Name string `json:"name" db:"name"`
-    Mean *float64 `json:"mean_rating" db:"mean_rating"`
+	Id   int32    `json:"id" db:"id"`
+	Name string   `json:"name" db:"name"`
+	Mean *float64 `json:"mean_rating" db:"mean_rating"`
 }
 
 type Tags struct {

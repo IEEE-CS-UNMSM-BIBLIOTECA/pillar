@@ -17,11 +17,11 @@ func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]dbtypes
 	query := `SELECT * FROM get_book_reviews($1, $2, $3)`
 	rows, err := conn.Query(context.Background(), query, bookID, page, pageSize)
 	if err != nil {
-		return nil, err
+		return []dbtypes.Review{}, err
 	}
 	defer rows.Close()
 
-	var responseList []dbtypes.Review
+	var responseList = []dbtypes.Review{}
 
 	for rows.Next() {
 		var review dbtypes.Review
@@ -38,7 +38,7 @@ func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]dbtypes
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
-			return nil, err
+			return []dbtypes.Review{}, err
 		}
 
 		// Append to responseList
@@ -47,7 +47,7 @@ func fetchBookReviews(conn *pgxpool.Conn, bookID, page, pageSize int) ([]dbtypes
 
 	if err = rows.Err(); err != nil {
 		log.Println("Error iterating rows:", err)
-		return nil, err
+		return []dbtypes.Review{}, err
 	}
 
 	return responseList, nil

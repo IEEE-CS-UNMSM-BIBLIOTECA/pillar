@@ -14,13 +14,13 @@ import (
 )
 
 func AddDocToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var reviewReq dbtypes.Document
-	if err := json.NewDecoder(r.Body).Decode(&reviewReq); err != nil {
+	var documentReq dbtypes.Document
+	if err := json.NewDecoder(r.Body).Decode(&documentReq); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	acquisition_date, err := time.Parse("2006-01-02", reviewReq.Acquisition_date) // Expecting format YYYY-MM-DD
+	acquisitionDate, err := time.Parse("2006-01-02", documentReq.Acquisition_date)
 	if err != nil {
 		log.Println("Invalid birth date format:", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,8 +28,8 @@ func AddDocToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var coverBytes []byte
-	if reviewReq.Cover_url != nil {
-		coverBytes, err = base64.StdEncoding.DecodeString(*reviewReq.Cover_url)
+	if documentReq.Cover_url != nil {
+		coverBytes, err = base64.StdEncoding.DecodeString(*documentReq.Cover_url)
 		if err != nil {
 			log.Println("Invalid base64 in cover_url:", err)
 			http.Error(w, "Invalid cover_url format", http.StatusBadRequest)
@@ -45,31 +45,45 @@ func AddDocToDB(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer conn.Release()
 
-	query := `INSERT INTO "Document" (title, isbn, description, cover_url, acquisition_date, edition, total_pages, 
-	external_lend_allowed, base_price, total_copies, available_copies, language_id, format_id, publisher_id, mean_rating, publication_year) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
-	_, err = conn.Exec(context.Background(), query, reviewReq.Title, reviewReq.Isbn, reviewReq.Description, coverBytes, acquisition_date,
-		reviewReq.Edition, reviewReq.Total_pages, reviewReq.External_lend_allowed, reviewReq.Base_price, reviewReq.Total_copies, reviewReq.Available_copies,
-		reviewReq.Language_id, reviewReq.Format_id, reviewReq.Publisher_id, reviewReq.Mean_rating, reviewReq.Publication_year)
+	var newDocumentID int
+	query := `
+		SELECT create_document(
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+		)`
+	err = conn.QueryRow(context.Background(),
+		query,
+		documentReq.Title,
+		documentReq.Isbn,
+		documentReq.Description,
+		acquisitionDate,
+		documentReq.Edition,
+		documentReq.Total_pages,
+		documentReq.External_lend_allowed,
+		documentReq.Base_price,
+		documentReq.Total_copies,
+		documentReq.Available_copies,
+		documentReq.Language_id,
+		documentReq.Format_id,
+		documentReq.Publisher_id,
+		documentReq.Publication_year,
+		documentReq.Authors_id,
+		documentReq.Tags_id,
+		coverBytes,
+	).Scan(&newDocumentID)
 	if err != nil {
-		log.Println("Error executing query:", err)
+		log.Println("Error executing create_document function:", err)
 		http.Error(w, "Error inserting the document", http.StatusInternalServerError)
 		return
 	}
 
-	query = `SELECT id FROM "Document" WHERE isbn = $1`
-	var document_id int32
-	err = conn.QueryRow(context.Background(), query, reviewReq.Isbn).Scan(&document_id)
-	if err != nil {
-		log.Println("Error executing query:", err)
-		http.Error(w, "Error retrieving id", http.StatusInternalServerError)
-		return
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(document_id); err != nil {
+	response := map[string]interface{}{
+		"message": "Document added successfully",
+		"book_id": newDocumentID,
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Println("Error encoding response:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Error generating response", http.StatusInternalServerError)
 		return
 	}
 }

@@ -10,6 +10,7 @@ import (
 	dbutils "pillar/internal/db/utils"
 	"strconv"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
@@ -52,11 +53,15 @@ func callToQuery(conn *pgxpool.Conn, ID int) (dbtypes.Document, dbtypes.Authors,
 		&tagsJson,
 	)
 
-	document.Acquisition_date = acquisition_date.Time.Format("2006-01-02")
-
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
+		}
+		log.Println("Error scanning row:", err)
 		return dbtypes.Document{}, dbtypes.Authors{}, dbtypes.Language{}, dbtypes.Publisher{}, dbtypes.Tags{}, err
 	}
+
+	document.Acquisition_date = acquisition_date.Time.Format("2006-01-02")
 
 	err = json.Unmarshal(authorsJSON, &authors.Authors)
 	if err != nil {
@@ -93,8 +98,13 @@ func SendBookById(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	document, author, language, publisher, tag, err := callToQuery(conn, bookID)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			log.Printf("Book with ID %d not found\n", bookID)
+			http.Error(w, "Book not found", http.StatusNotFound)
+			return
+		}
 		log.Println("Error executing query:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Error retrieving book details", http.StatusInternalServerError)
 		return
 	}
 
