@@ -13,7 +13,7 @@ import (
 )
 
 func GetLanguages(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var languages []dbtypes.Language
+	var languages = []dbtypes.Language{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -61,7 +61,7 @@ func GetLanguages(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetPublishers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var publishers []dbtypes.Publisher
+	var publishers = []dbtypes.Publisher{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -109,7 +109,7 @@ func GetPublishers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 }
 
 func GetCountries(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var countries []dbtypes.Country
+	var countries = []dbtypes.Country{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -157,7 +157,7 @@ func GetCountries(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetFormats(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var formats []dbtypes.Format
+	var formats = []dbtypes.Format{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -205,7 +205,7 @@ func GetFormats(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetAuhors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var authors []dbtypes.Author
+	var authors = []dbtypes.Author{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -253,7 +253,7 @@ func GetAuhors(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetGenders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var genders []dbtypes.Gender
+	var genders = []dbtypes.Gender{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -301,7 +301,7 @@ func GetGenders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var documents []dbtypes.Document
+	var documents = []dbtypes.Document{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
@@ -370,7 +370,7 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var orders []dbtypes.OrderView
+	var orders = []dbtypes.OrderView{}
 
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {

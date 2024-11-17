@@ -57,7 +57,7 @@ func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	defer rows.Close()
 
-	var lists []dbtypes.List
+	var lists = []dbtypes.List{}
 
 	for rows.Next() {
 		var list dbtypes.List
