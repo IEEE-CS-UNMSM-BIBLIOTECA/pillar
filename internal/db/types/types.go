@@ -18,10 +18,14 @@ type Document struct {
 	Isbn                  string   `json:"isbn"`
 	Description           string   `json:"description"`
 	Cover_url             *string  `json:"cover_url"`
-	Language_name         *string  `json:"language_name"`
-	Publisher_name        *string  `json:"publisher_name"`
 	Authors_id            []int32  `json:"authors_id"`
 	Tags_id               []int32  `json:"tags_id"`
+
+	Authors   []Author  `json:"authors"`
+	Language  Language  `json:"language"`
+	Format    Format    `json:"format"`
+	Publisher Publisher `json:"publisher"`
+	Tags      []Tag     `json:"tags"`
 }
 
 type Author struct {

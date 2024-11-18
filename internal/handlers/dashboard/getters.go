@@ -3,6 +3,7 @@ package dashboard
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	dbtypes "pillar/internal/db/types"
@@ -318,40 +319,141 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			d.isbn, 
 			d.description, 
 			d.publication_year, 
+			d.acquisition_date, 
 			d.edition, 
+			d.external_lend_allowed, 
+			d.total_pages, 
 			d.base_price, 
-			l.name AS language_name, 
-			p.name AS publisher_name
-		FROM "Document" d
-		JOIN "Language" l ON l.id = d.language_id
-		JOIN "Publisher" p ON p.id = d.publisher_id
+			d.total_copies, 
+			d.available_copies, 
+			COALESCE(d.mean_rating, 0) AS mean_rating,
+			-- Authors
+			(SELECT jsonb_agg(jsonb_build_object(
+				'id', a.id, 
+				'name', a.name
+			)) FROM "Author" a 
+			JOIN "Author_Document" da ON da.author_id = a.id 
+			WHERE da.document_id = d.id) AS authors,
+			-- Language as a JSON object
+			jsonb_build_object(
+				'id', l.id, 
+				'name', l.name
+			) AS language,
+			-- Publisher as a JSON object
+			jsonb_build_object(
+				'id', p.id, 
+				'name', p.name
+			) AS publisher,
+			-- Tags as a JSONB array
+			(SELECT jsonb_agg(jsonb_build_object(
+				'id', t.id, 
+				'name', t.name
+			)) FROM "Tag" t 
+			JOIN "Tag_Document" dt ON dt.tag_id = t.id 
+			WHERE dt.document_id = d.id) AS tags,
+			-- Document format as a JSONB object
+			jsonb_build_object(
+				'id', f.id, 
+				'name', f.name
+			) AS formats
+		FROM 
+			"Document" d
+		JOIN 
+			"Language" l ON l.id = d.language_id
+		JOIN 
+			"Publisher" p ON p.id = d.publisher_id
+		LEFT JOIN 
+			"DocumentFormat" f ON f.id = d.format_id;
 	`
 	rows, err := conn.Query(context.Background(), query)
 	if err != nil {
 		log.Println("Error executing query:", err)
-		http.Error(w, "Error fetching genders", http.StatusInternalServerError)
+		http.Error(w, "Error fetching documents", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var document dbtypes.Document
+		var acquisition_date time.Time
+
+		var authorJSON []byte
+		var languageJSON []byte
+		var formatJSON []byte
+		var publisherJSON []byte
+		var tagJSON []byte
+
 		err = rows.Scan(
 			&document.Id,
 			&document.Title,
 			&document.Isbn,
 			&document.Description,
 			&document.Publication_year,
+			&acquisition_date,
 			&document.Edition,
+			&document.External_lend_allowed,
+			&document.Total_pages,
 			&document.Base_price,
-			&document.Language_name,
-			&document.Publisher_name,
+			&document.Total_copies,
+			&document.Available_copies,
+			&document.Mean_rating,
+			&authorJSON,
+			&languageJSON,
+			&publisherJSON,
+			&tagJSON,
+			&formatJSON,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
 			http.Error(w, "Error processing data", http.StatusInternalServerError)
 			return
 		}
+
+		var authors []dbtypes.Author
+		if err := json.Unmarshal(authorJSON, &authors); err != nil {
+			log.Println("Error unmarshalling authors:", err)
+			http.Error(w, "Error processing authors", http.StatusInternalServerError)
+			return
+		}
+		document.Authors = authors
+
+		var language dbtypes.Language
+		if err := json.Unmarshal(languageJSON, &language); err != nil {
+			log.Println("Error unmarshalling language:", err)
+			http.Error(w, "Error processing language", http.StatusInternalServerError)
+			return
+		}
+		document.Language = language
+
+		var formats dbtypes.Format
+		if err := json.Unmarshal(formatJSON, &formats); err != nil {
+			log.Println("Error unmarshalling formats:", err)
+			http.Error(w, "Error processing formats", http.StatusInternalServerError)
+			return
+		}
+		document.Format = formats
+
+		var publisher dbtypes.Publisher
+		if err := json.Unmarshal(publisherJSON, &publisher); err != nil {
+			log.Println("Error unmarshalling publisher:", err)
+			http.Error(w, "Error processing publisher", http.StatusInternalServerError)
+			return
+		}
+		document.Publisher = publisher
+
+		var tag []dbtypes.Tag
+		if err := json.Unmarshal(tagJSON, &tag); err != nil {
+			log.Println("Error unmarshalling tags:", err)
+			http.Error(w, "Error processing tags", http.StatusInternalServerError)
+			return
+		}
+		document.Tags = tag
+
+		document.Acquisition_date = acquisition_date.Format("2006-01-02")
+
+		urlImage := fmt.Sprintf("http://143.198.142.139:8080/cover/%d", document.Id)
+		document.Cover_url = &urlImage
+
 		documents = append(documents, document)
 	}
 
@@ -361,6 +463,7 @@ func GetDocuments(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	// Set response header to application/json and encode the map
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(documents); err != nil {
 		log.Println("Error encoding response:", err)
