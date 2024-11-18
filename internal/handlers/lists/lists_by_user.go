@@ -3,6 +3,7 @@ package lists
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	dbtypes "pillar/internal/db/types"
@@ -35,13 +36,20 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 	query := `
 	SELECT 
-	l.id,
-	l.title,
-	l.total_likes,
-	l.total_books,
-	CASE WHEN $1 = l.user_id THEN l.private ELSE false END AS is_private,
-	EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
-	l.user_id = $1 AS own
+		l.id,
+		l.title,
+		l.total_likes,
+		l.total_books,
+		CASE WHEN $1 = l.user_id THEN l.private ELSE false END AS is_private,
+		EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
+		l.user_id = $1 AS own,
+		ARRAY(
+			SELECT d.id 
+			FROM "List_Document" ld
+			JOIN "Document" d ON ld.document_id = d.id
+			WHERE ld.list_id = l.id
+			LIMIT 5
+		) AS document_ids
 	FROM "List" l
 	JOIN "User" u ON l.user_id = u.id
 	WHERE l.user_id = $2 AND ($1 = $2 OR l.private = false)
@@ -54,10 +62,11 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	defer rows.Close()
 
-	var lists = []dbtypes.List{}
+	var lists = []dbtypes.ListUser{}
+	var documentIDs []int
 
 	for rows.Next() {
-		var list dbtypes.List
+		var list dbtypes.ListUser
 		err = rows.Scan(
 			&list.Id,
 			&list.Title,
@@ -66,12 +75,17 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 			&list.Private,
 			&list.Liked,
 			&list.Own,
+			&documentIDs,
 		)
 		if err != nil {
 			log.Println("Error scanning row:", err)
 			http.Error(w, "Error processing lists", http.StatusInternalServerError)
 			return
 		}
+		for _, docID := range documentIDs {
+			list.Preview_images = append(list.Preview_images, fmt.Sprintf("http://143.198.142.139:8080/cover/%d", docID))
+		}
+
 		lists = append(lists, list)
 	}
 
