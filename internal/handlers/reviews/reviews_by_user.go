@@ -48,7 +48,7 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		r.total_likes,
 		r.rating,
 		r.spoiler,
-		CASE WHEN $1 = r.user_id THEN true ELSE false END AS own,
+		CASE WHEN $1 = r.user_id THEN true ELSE false END AS own
 	FROM "Review" r
 	JOIN "User" u ON r.user_id = u.id
 	WHERE r.user_id = $2

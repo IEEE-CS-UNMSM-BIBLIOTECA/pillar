@@ -41,7 +41,7 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	l.total_books,
 	CASE WHEN $1 = l.user_id THEN l.private ELSE false END AS is_private,
 	EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
-	l.user_id = $1 AS own,
+	l.user_id = $1 AS own
 	FROM "List" l
 	JOIN "User" u ON l.user_id = u.id
 	WHERE l.user_id = $2 AND ($1 = $2 OR l.private = false)
