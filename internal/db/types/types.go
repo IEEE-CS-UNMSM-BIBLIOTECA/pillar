@@ -100,6 +100,23 @@ type Review struct {
 	Own         bool           `json:"bool"`
 }
 
+type ReviewUser struct {
+	Id          int32  `json:"id"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+	Rating      int32  `json:"rating"`
+	Total_likes int32  `json:"total_likes"`
+	Liked       bool   `json:"liked"`
+	Spoiler     bool   `json:"spoiler"`
+	Own         bool   `json:"bool"`
+	Book        struct {
+		Id        int      `json:"id"`
+		Title     string   `json:"title"`
+		Cover_url string   `json:"cover_url"`
+		Authors   []Author `json:"authors"`
+	} `json:"book"`
+}
+
 type ReviewRequest struct {
 	DocumentID int    `json:"document_id"`
 	Title      string `json:"title"`

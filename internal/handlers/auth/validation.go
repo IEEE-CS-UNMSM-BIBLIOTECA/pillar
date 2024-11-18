@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -90,8 +91,18 @@ func TokenValidationMiddleware(next httprouter.Handle) httprouter.Handle {
 func HndProtectedEndpoint(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Retrieve the username from the context
 	username := r.Context().Value("username").(string)
+	user_id := GetIdFromUsername(username)
 
-	w.Write([]byte("Hello, " + username + ", you're authenticated!"))
+	response := map[string]interface{}{
+		"username": username,
+		"user_id":  user_id,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func GetIdFromUsername(username string) int {
