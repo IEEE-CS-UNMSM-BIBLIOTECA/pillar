@@ -488,6 +488,7 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			o.id AS order_id, 
 			o.order_date, 
 			o.max_return_date, 
+			o.actual_return_date,
 			u.id AS user_id,
 			u.username AS name,
 			d.id AS document_id,
@@ -512,11 +513,13 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 		var orderDate time.Time
 		var maxReturnDate time.Time
+		var actualReturnDate *time.Time
 
 		err = rows.Scan(
 			&order.Id,
 			&orderDate,
 			&maxReturnDate,
+			&actualReturnDate,
 			&order.User.Id,
 			&order.User.Name,
 			&order.Document.Id,
@@ -530,6 +533,11 @@ func GetOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 		order.Order_date = orderDate.Format("2006-01-02")
 		order.Max_return_date = maxReturnDate.Format("2006-01-02")
+		if actualReturnDate != nil {
+			order.Actual_return_date = actualReturnDate.Format("2006-01-02")
+		} else {
+			order.Actual_return_date = ""
+		}
 
 		orders = append(orders, order)
 	}

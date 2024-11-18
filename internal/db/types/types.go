@@ -28,6 +28,11 @@ type Document struct {
 	Tags      []Tag     `json:"tags"`
 }
 
+type DocumentOrder struct {
+	Id    int32  `json:"id"`
+	Title string `json:"title"`
+}
+
 type Author struct {
 	Id   int32  `json:"id"`
 	Name string `json:"name"`
@@ -161,11 +166,12 @@ type RenameList struct {
 }
 
 type OrderView struct {
-	Id              int32    `json:"id"`
-	Order_date      string   `json:"order_date"`
-	Max_return_date string   `json:"max_return_date"`
-	User            User     `json:"user"`
-	Document        Document `json:"document"`
+	Id                 int32         `json:"id"`
+	Order_date         string        `json:"order_date"`
+	Max_return_date    string        `json:"max_return_date"`
+	Actual_return_date string        `json:"actual_return_date"`
+	User               User          `json:"user"`
+	Document           DocumentOrder `json:"document"`
 }
 
 type OrderRequest struct {
