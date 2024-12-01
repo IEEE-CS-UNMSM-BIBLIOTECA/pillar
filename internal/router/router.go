@@ -38,8 +38,7 @@ func NewPillarRouter() *httprouter.Router {
 	// BOOKS
 	new_router.GET("/books/:id", books.SendBookById)
 	new_router.GET("/books/:id/reviews", books.SendReviewsById)
-	new_router.GET("/books-public", books.SendPopularBooks)
-	new_router.GET("/books", auth.TokenValidationMiddleware(books.SendPopularBooks))
+	new_router.GET("/books", books.SendPopularBooks)
 	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
 
@@ -52,8 +51,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.DELETE("/lists/:list_id/books/:book_id", auth.TokenValidationMiddleware(lists.DeleteDocFromList))
 
 	// LISTS SCREEN
-	new_router.GET("/lists-public", lists.GetAllLists)
-	new_router.GET("/lists", auth.TokenValidationMiddleware(lists.GetAllLists))
+	new_router.GET("/lists", lists.GetAllLists)
 	new_router.GET("/lists/books/:list_id", auth.TokenValidationMiddleware(books.GetBooksFromList))
 	new_router.GET("/list/:list_id", auth.TokenValidationMiddleware(lists.GetListById))
 
@@ -93,8 +91,8 @@ func NewPillarRouter() *httprouter.Router {
 
 	// USER LISTS AND REVIEWS
 	new_router.GET("/user/screen/:user_id", auth.TokenValidationMiddleware(user.GetUserById))
-	new_router.GET("/user/reviews/:user_id", auth.TokenValidationMiddleware(reviews.GetReviewsByUserId))
-	new_router.GET("/user/lists/:user_id", auth.TokenValidationMiddleware(lists.GetListByUserId))
+	new_router.GET("/user/reviews/:user_id", reviews.GetReviewsByUserId)
+	new_router.GET("/user/lists/:user_id", lists.GetListByUserId)
 
 	return new_router
 }
