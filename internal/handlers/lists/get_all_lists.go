@@ -14,12 +14,15 @@ import (
 )
 
 func GetAllLists(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	username := r.Context().Value("username").(string)
+	username, hasToken := r.Context().Value("username").(string)
 
-	user_id := auth.GetIdFromUsername(username)
-	if user_id == 0 {
-		http.Error(w, "That username does not exist", http.StatusBadRequest)
-		return
+	var user_id int
+	if hasToken {
+		user_id = auth.GetIdFromUsername(username)
+		if user_id == 0 {
+			http.Error(w, "That username does not exist", http.StatusBadRequest)
+			return
+		}
 	}
 
 	page := 1

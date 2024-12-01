@@ -34,8 +34,22 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	defer conn.Release()
 
+	queryUserExists := `SELECT EXISTS(SELECT 1 FROM "User" WHERE id = $1)`
+	var userExists bool
+	err = conn.QueryRow(context.Background(), queryUserExists, user_lookup).Scan(&userExists)
+	if err != nil {
+		log.Println("Error checking if user exists:", err)
+		http.Error(w, "Error verifying user existence", http.StatusInternalServerError)
+		return
+	}
+
+	if !userExists {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
 	query := `
-	SELECT 
+	SELECT
 		l.id,
 		l.title,
 		l.total_likes,
@@ -44,7 +58,7 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		EXISTS(SELECT 1 FROM "ListLike" lk WHERE lk.list_id = l.id AND lk.user_id = $1) AS liked,
 		l.user_id = $1 AS own,
 		ARRAY(
-			SELECT d.id 
+			SELECT d.id
 			FROM "List_Document" ld
 			JOIN "Document" d ON ld.document_id = d.id
 			WHERE ld.list_id = l.id
@@ -90,7 +104,7 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 
 	if len(lists) == 0 {
-		http.Error(w, "No lists found", http.StatusNotFound)
+		http.Error(w, "No lists found", http.StatusNoContent)
 		return
 	}
 

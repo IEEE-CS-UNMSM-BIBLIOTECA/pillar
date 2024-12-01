@@ -41,8 +41,22 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	}
 	defer conn.Release()
 
+	queryUserExists := `SELECT EXISTS(SELECT 1 FROM "User" WHERE id = $1)`
+	var userExists bool
+	err = conn.QueryRow(context.Background(), queryUserExists, userID).Scan(&userExists)
+	if err != nil {
+		log.Println("Error checking if user exists:", err)
+		http.Error(w, "Error verifying user existence", http.StatusInternalServerError)
+		return
+	}
+
+	if !userExists {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
 	query := `
-	SELECT 
+	SELECT
 		r.id AS review_id,
 		r.title AS review_title,
 		r.content,
@@ -104,7 +118,7 @@ func GetReviewsByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	}
 
 	if len(reviews) == 0 {
-		http.Error(w, "No reviews found", http.StatusNotFound)
+		http.Error(w, "No reviews found", http.StatusNoContent)
 		return
 	}
 
