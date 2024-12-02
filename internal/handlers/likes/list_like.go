@@ -12,7 +12,7 @@ import (
 )
 
 func AddLikeList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id := ps.ByName("id")
+	id := ps.ByName("list_id")
 	username := r.Context().Value("username").(string)
 
 	user_id := auth.GetIdFromUsername(username)
@@ -56,7 +56,7 @@ func AddLikeList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func RemoveLikeList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id := ps.ByName("id")
+	id := ps.ByName("list_id")
 	username := r.Context().Value("username").(string)
 
 	user_id := auth.GetIdFromUsername(username)

@@ -43,7 +43,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
 
 	// REVIEWS
-	new_router.GET("/review/:id", reviews.ReviewByID)
+	new_router.GET("/reviews/:id", reviews.ReviewByID)
 
 	// LISTS BOOK
 	new_router.GET("/books/:id/lists/", auth.TokenValidationMiddleware(lists.GetUserLists))
@@ -59,10 +59,10 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/list/:list_id", lists.GetListById)
 
 	// LIKES
-	new_router.PUT("/like/review/:id", auth.TokenValidationMiddleware(likes.AddLikeReview))
-	new_router.DELETE("/like/review/:id", auth.TokenValidationMiddleware(likes.RemoveLikeReview))
-	new_router.PUT("/like/list/:id", auth.TokenValidationMiddleware(likes.AddLikeList))
-	new_router.DELETE("/like/list/:id", auth.TokenValidationMiddleware(likes.RemoveLikeList))
+	new_router.PUT("/reviews/:id/like", auth.TokenValidationMiddleware(likes.AddLikeReview))
+	new_router.DELETE("/reviews/:id/like", auth.TokenValidationMiddleware(likes.RemoveLikeReview))
+	new_router.PUT("/lists/:list_id/like", auth.TokenValidationMiddleware(likes.AddLikeList))
+	new_router.DELETE("/lists/:list_id/like", auth.TokenValidationMiddleware(likes.RemoveLikeList))
 
 	// DASHBOARD
 	new_router.GET("/dashboard/languages", auth.TokenValidationMiddleware(dashboard.GetLanguages))
