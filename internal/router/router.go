@@ -7,6 +7,7 @@ import (
 	"pillar/internal/handlers/auth/normal_user"
 	"pillar/internal/handlers/books"
 	"pillar/internal/handlers/dashboard"
+	"pillar/internal/handlers/dashboard/edit"
 	"pillar/internal/handlers/images"
 	"pillar/internal/handlers/lends"
 	"pillar/internal/handlers/likes"
@@ -43,7 +44,7 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
 
 	// REVIEWS
-	new_router.GET("/reviews/:id", reviews.ReviewByID)
+	new_router.GET("/reviews/:id", auth.TokenValidationMiddleware(reviews.ReviewByID))
 
 	// LISTS BOOK
 	new_router.GET("/books/:id/lists/", auth.TokenValidationMiddleware(lists.GetUserLists))
@@ -82,6 +83,8 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
 	new_router.POST("/dashboard/order/:order_id", auth.TokenValidationMiddleware(dashboard.FinishOrder))
 	new_router.POST("/dashboard/tag", auth.TokenValidationMiddleware(dashboard.AddTag))
+
+	new_router.PATCH("/dashboard/document/edit", auth.TokenValidationMiddleware(edit.EditDoc))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	dbtypes "pillar/internal/db/types"
 	dbutils "pillar/internal/db/utils"
+	"pillar/internal/handlers/auth"
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
@@ -23,6 +24,16 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
+	username, hasToken := r.Context().Value("username").(string)
+	var requesterID int
+	if hasToken {
+		requesterID = auth.GetIdFromUsername(username)
+		if requesterID == 0 {
+			http.Error(w, "That username does not exist", http.StatusBadRequest)
+			return
+		}
+	}
+
 	conn, err := dbutils.DbPool.Acquire(context.Background())
 	if err != nil {
 		log.Println("Failed to acquire a database connection:", err)
@@ -30,6 +41,9 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	defer conn.Release()
+
+	log.Println("Review ID:", reviewID)
+	log.Println("Requester ID:", requesterID)
 
 	query := `
 	SELECT
@@ -41,6 +55,7 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		r.spoiler,
 		r.user_id,
 		u.username,
+		EXISTS(SELECT 1 FROM "ReviewLike" rl WHERE rl.review_id = r.id AND rl.user_id = $1) AS liked,
 		b.id AS book_id,
 		b.title AS book_title,
 		COALESCE(json_agg(json_build_object('id', a.id, 'name', a.name)) FILTER (WHERE a.id IS NOT NULL), '[]') AS authors
@@ -49,14 +64,14 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	LEFT JOIN "Author_Document" ad ON ad.document_id = b.id
 	LEFT JOIN "Author" a ON ad.author_id = a.id
 	LEFT JOIN "User" u ON r.user_id = u.id
-	WHERE r.id = $1
+	WHERE r.id = $2
 	GROUP BY r.id, b.id, u.id
 	`
 
 	var review dbtypes.UniqueReview
 	var authorsJSON string
 
-	err = conn.QueryRow(context.Background(), query, reviewID).Scan(
+	err = conn.QueryRow(context.Background(), query, requesterID, reviewID).Scan(
 		&review.Id,
 		&review.Title,
 		&review.Content,
@@ -65,6 +80,7 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		&review.Spoiler,
 		&review.User.Id,
 		&review.User.Name,
+		&review.Liked,
 		&review.Book.Id,
 		&review.Book.Title,
 		&authorsJSON,
