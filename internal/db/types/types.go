@@ -145,7 +145,7 @@ type ReviewRequest struct {
 
 type UserFromReview struct {
 	Id                  int32   `json:"id"`
-	Name                string  `json:"user_name"`
+	Name                string  `json:"username"`
 	Profile_picture_url *string `json:"profile_picture_url"`
 }
 
