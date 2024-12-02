@@ -55,7 +55,7 @@ func NewPillarRouter() *httprouter.Router {
 
 	// LISTS SCREEN
 	new_router.GET("/lists", lists.GetAllLists)
-	new_router.GET("/lists/books/:list_id", books.GetBooksFromList)
+	new_router.GET("/lists/:list_id/books", books.GetBooksFromList)
 	new_router.GET("/list/:list_id", lists.GetListById)
 
 	// LIKES
