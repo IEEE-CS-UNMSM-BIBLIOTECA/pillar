@@ -52,6 +52,7 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	WHERE r.id = $1
 	GROUP BY r.id, b.id, u.id
 	`
+
 	var review dbtypes.UniqueReview
 	var authorsJSON string
 
@@ -62,8 +63,8 @@ func ReviewByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		&review.Total_likes,
 		&review.Rating,
 		&review.Spoiler,
-		&review.User_id,
-		&review.Username,
+		&review.User.Id,
+		&review.User.Name,
 		&review.Book.Id,
 		&review.Book.Title,
 		&authorsJSON,

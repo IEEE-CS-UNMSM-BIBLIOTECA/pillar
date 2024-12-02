@@ -114,7 +114,7 @@ type ReviewUser struct {
 		Title     string   `json:"title"`
 		Cover_url string   `json:"cover_url"`
 		Authors   []Author `json:"authors"`
-	} `json:"book"`
+	} `json:"document"`
 }
 
 type UniqueReview struct {
@@ -125,15 +125,14 @@ type UniqueReview struct {
 	Total_likes int32  `json:"total_likes"`
 	Liked       bool   `json:"liked"`
 	Spoiler     bool   `json:"spoiler"`
-	User_id     int    `json:"user_id"`
-	Username    string `json:"username"`
 	Own         bool   `json:"bool"`
+	User        User   `json:"user"`
 	Book        struct {
 		Id        int      `json:"id"`
 		Title     string   `json:"title"`
 		Cover_url string   `json:"cover_url"`
 		Authors   []Author `json:"authors"`
-	} `json:"book"`
+	} `json:"document"`
 }
 
 type ReviewRequest struct {
@@ -231,6 +230,6 @@ type OrderRequest struct {
 
 type User struct {
 	Id   int32   `json:"id"`
-	Name string  `json:"name"`
+	Name string  `json:"username"`
 	Bio  *string `json:"bio"`
 }
