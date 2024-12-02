@@ -34,20 +34,6 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	defer conn.Release()
 
-	queryUserExists := `SELECT EXISTS(SELECT 1 FROM "User" WHERE id = $1)`
-	var userExists bool
-	err = conn.QueryRow(context.Background(), queryUserExists, user_lookup).Scan(&userExists)
-	if err != nil {
-		log.Println("Error checking if user exists:", err)
-		http.Error(w, "Error verifying user existence", http.StatusInternalServerError)
-		return
-	}
-
-	if !userExists {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
 	query := `
 	SELECT
 		l.id,
@@ -66,7 +52,7 @@ func GetListByUserId(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		) AS document_ids
 	FROM "List" l
 	JOIN "User" u ON l.user_id = u.id
-	WHERE l.user_id = $2 AND ($1 = $2 OR l.private = false)
+	WHERE l.user_id = $2
 	`
 	rows, err := conn.Query(context.Background(), query, requesterID, user_lookup)
 	if err != nil {

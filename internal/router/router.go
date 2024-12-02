@@ -93,9 +93,9 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/lends", auth.TokenValidationMiddleware(lends.GetLendsByUser))
 
 	// USER LISTS AND REVIEWS
-	new_router.GET("/user/screen/:user_id", user.GetUserById)
-	new_router.GET("/user/reviews/:user_id", reviews.GetReviewsByUserId)
-	new_router.GET("/user/lists/:user_id", lists.GetListByUserId)
+	new_router.GET("/user/:user_id/screen", user.GetUserById)
+	new_router.GET("/user/:user_id/reviews", reviews.GetReviewsByUserId)
+	new_router.GET("/user/:user_id/lists", lists.GetListByUserId)
 
 	return new_router
 }
