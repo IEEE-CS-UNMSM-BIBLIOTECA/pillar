@@ -1,7 +1,6 @@
 package router
 
 import (
-	"pillar/internal/handlers"
 	"pillar/internal/handlers/auth"
 	"pillar/internal/handlers/auth/admin"
 	"pillar/internal/handlers/auth/normal_user"
@@ -19,72 +18,87 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func secure(handler httprouter.Handle) httprouter.Handle {
+	return auth.TokenValidationMiddleware(handler)
+}
+
+func registerAuthRoutes(r *httprouter.Router) {
+	// AUTH USERS
+	r.POST("/login", normal_user.HndLogin)
+	r.POST("/register", normal_user.HndSignUp)
+
+	// AUTH ADMIN
+	r.POST("/login/admin", admin.HndLoginAdmin)
+
+	// AUTH
+	r.GET("/protected", secure(auth.HndProtectedEndpoint))
+}
+
+func registerBooksRoutes(r *httprouter.Router) {
+	r.GET("/books/:id", secure(books.SendBookById))
+	r.GET("/books/:id/reviews", secure(books.SendReviewsById))
+	r.GET("/books", books.SendPopularBooks)
+	r.POST("/books/reviews", secure(books.AddReviews))
+	r.POST("/orders", secure(books.RegisterOrder))
+}
+
+func registerListsBooksRoutes(r *httprouter.Router) {
+	// LISTS BOOK
+	r.GET("/books/:id/lists/", secure(lists.GetUserLists))
+	r.POST("/lists/:list_id/books", secure(lists.AddDocToList))
+	r.POST("/lists", secure(lists.CreateList))
+	r.DELETE("/lists/:list_id", secure(lists.EliminateList))
+	r.PUT("/lists/:list_id/books", secure(lists.RenameList))
+	r.DELETE("/lists/:list_id/books/:book_id", secure(lists.DeleteDocFromList))
+}
+
+func registerListsScreen(r *httprouter.Router) {
+	r.GET("/lists", secure(lists.GetAllLists))
+	r.GET("/lists/:list_id/books", books.GetBooksFromList)
+	r.GET("/list/:list_id", secure(lists.GetListById))
+}
+
+func registerLikesRoutes(r *httprouter.Router) {
+	r.POST("/reviews/:id/like", secure(likes.AddLikeReview))
+	r.DELETE("/reviews/:id/like", secure(likes.RemoveLikeReview))
+	r.POST("/lists/:list_id/like", secure(likes.AddLikeList))
+	r.DELETE("/lists/:list_id/like", secure(likes.RemoveLikeList))
+}
+
+func registerDashboardRoutes(r *httprouter.Router) {
+	r.GET("/dashboard/languages", secure(dashboard.GetLanguages))
+	r.GET("/dashboard/publishers", secure(dashboard.GetPublishers))
+	r.GET("/dashboard/countries", secure(dashboard.GetCountries))
+	r.GET("/dashboard/formats", secure(dashboard.GetFormats))
+	r.GET("/dashboard/authors", secure(dashboard.GetAuhors))
+	r.GET("/dashboard/genders", secure(dashboard.GetGenders))
+	r.GET("/dashboard/documents", secure(dashboard.GetDocuments))
+	r.GET("/dashboard/orders", secure(dashboard.GetOrders))
+	r.GET("/dashboard/authors/:document_id", secure(dashboard.GetAuthorsByDoc))
+	r.GET("/dashboard/alltags/", secure(dashboard.GetAllTags))
+
+	r.POST("/dashboard/document", secure(dashboard.AddDocToDB))
+	r.POST("/dashboard/author", secure(dashboard.AddAuthor))
+	r.POST("/dashboard/publisher", secure(dashboard.AddPublisher))
+	r.POST("/dashboard/author/:author_id/document/:document_id", secure(dashboard.AddAuthorDocument))
+	r.POST("/dashboard/order/:order_id", secure(dashboard.FinishOrder))
+	r.POST("/dashboard/tag", secure(dashboard.AddTag))
+
+	r.PATCH("/dashboard/document/edit", secure(edit.EditDoc))
+}
+
 func NewPillarRouter() *httprouter.Router {
 	new_router := httprouter.New()
 
-	// AUTH USERS
-	new_router.POST("/login", normal_user.HndLogin)
-	new_router.POST("/register", normal_user.HndSignUp)
-
-	// AUTH ADMIN
-	new_router.POST("/login/admin", admin.HndLoginAdmin)
-
-	// AUTH
-	new_router.GET("/protected", auth.TokenValidationMiddleware(auth.HndProtectedEndpoint))
-
-	// RODRO
-	new_router.OPTIONS("/document/:field", handlers.HndGetDocumentsBy)
-	new_router.POST("/document/:field", handlers.HndOptGetDocumentsBy)
-
-	// BOOKS
-	new_router.GET("/books/:id", auth.TokenValidationMiddleware(books.SendBookById))
-	new_router.GET("/books/:id/reviews", auth.TokenValidationMiddleware(books.SendReviewsById))
-	new_router.GET("/books", books.SendPopularBooks)
-	new_router.POST("/books/reviews", auth.TokenValidationMiddleware(books.AddReviews))
-	new_router.POST("/orders", auth.TokenValidationMiddleware(books.RegisterOrder))
+	registerAuthRoutes(new_router)
+	registerBooksRoutes(new_router)
+	registerListsBooksRoutes(new_router)
+	registerListsScreen(new_router)
+	registerLikesRoutes(new_router)
+	registerDashboardRoutes(new_router)
 
 	// REVIEWS
-	new_router.GET("/reviews/:id", auth.TokenValidationMiddleware(reviews.ReviewByID))
-
-	// LISTS BOOK
-	new_router.GET("/books/:id/lists/", auth.TokenValidationMiddleware(lists.GetUserLists))
-	new_router.POST("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.AddDocToList))
-	new_router.POST("/lists", auth.TokenValidationMiddleware(lists.CreateList))
-	new_router.DELETE("/lists/:list_id", auth.TokenValidationMiddleware(lists.EliminateList))
-	new_router.PUT("/lists/:list_id/books", auth.TokenValidationMiddleware(lists.RenameList))
-	new_router.DELETE("/lists/:list_id/books/:book_id", auth.TokenValidationMiddleware(lists.DeleteDocFromList))
-
-	// LISTS SCREEN
-	new_router.GET("/lists", auth.TokenValidationMiddleware(lists.GetAllLists))
-	new_router.GET("/lists/:list_id/books", books.GetBooksFromList)
-	new_router.GET("/list/:list_id", auth.TokenValidationMiddleware(lists.GetListById))
-
-	// LIKES
-	new_router.POST("/reviews/:id/like", auth.TokenValidationMiddleware(likes.AddLikeReview))
-	new_router.DELETE("/reviews/:id/like", auth.TokenValidationMiddleware(likes.RemoveLikeReview))
-	new_router.POST("/lists/:list_id/like", auth.TokenValidationMiddleware(likes.AddLikeList))
-	new_router.DELETE("/lists/:list_id/like", auth.TokenValidationMiddleware(likes.RemoveLikeList))
-
-	// DASHBOARD
-	new_router.GET("/dashboard/languages", auth.TokenValidationMiddleware(dashboard.GetLanguages))
-	new_router.GET("/dashboard/publishers", auth.TokenValidationMiddleware(dashboard.GetPublishers))
-	new_router.GET("/dashboard/countries", auth.TokenValidationMiddleware(dashboard.GetCountries))
-	new_router.GET("/dashboard/formats", auth.TokenValidationMiddleware(dashboard.GetFormats))
-	new_router.GET("/dashboard/authors", auth.TokenValidationMiddleware(dashboard.GetAuhors))
-	new_router.GET("/dashboard/genders", auth.TokenValidationMiddleware(dashboard.GetGenders))
-	new_router.GET("/dashboard/documents", auth.TokenValidationMiddleware(dashboard.GetDocuments))
-	new_router.GET("/dashboard/orders", auth.TokenValidationMiddleware(dashboard.GetOrders))
-	new_router.GET("/dashboard/authors/:document_id", auth.TokenValidationMiddleware(dashboard.GetAuthorsByDoc))
-	new_router.GET("/dashboard/alltags/", auth.TokenValidationMiddleware(dashboard.GetAllTags))
-
-	new_router.POST("/dashboard/document", auth.TokenValidationMiddleware(dashboard.AddDocToDB))
-	new_router.POST("/dashboard/author", auth.TokenValidationMiddleware(dashboard.AddAuthor))
-	new_router.POST("/dashboard/publisher", auth.TokenValidationMiddleware(dashboard.AddPublisher))
-	new_router.POST("/dashboard/author/:author_id/document/:document_id", auth.TokenValidationMiddleware(dashboard.AddAuthorDocument))
-	new_router.POST("/dashboard/order/:order_id", auth.TokenValidationMiddleware(dashboard.FinishOrder))
-	new_router.POST("/dashboard/tag", auth.TokenValidationMiddleware(dashboard.AddTag))
-
-	new_router.PATCH("/dashboard/document/edit", auth.TokenValidationMiddleware(edit.EditDoc))
+	new_router.GET("/reviews/:id", secure(reviews.ReviewByID))
 
 	// SEARCH
 	new_router.GET("/search/:lookup", search.Search)
@@ -93,12 +107,12 @@ func NewPillarRouter() *httprouter.Router {
 	new_router.GET("/cover/:document_id", images.ImageLink)
 
 	// LENDS
-	new_router.GET("/lends", auth.TokenValidationMiddleware(lends.GetLendsByUser))
+	new_router.GET("/lends", secure(lends.GetLendsByUser))
 
 	// USER LISTS AND REVIEWS
-	new_router.GET("/user/:user_id/screen", auth.TokenValidationMiddleware(user.GetUserById))
-	new_router.GET("/user/:user_id/reviews", auth.TokenValidationMiddleware(reviews.GetReviewsByUserId))
-	new_router.GET("/user/:user_id/lists", auth.TokenValidationMiddleware(lists.GetListByUserId))
+	new_router.GET("/user/:user_id/screen", secure(user.GetUserById))
+	new_router.GET("/user/:user_id/reviews", secure(reviews.GetReviewsByUserId))
+	new_router.GET("/user/:user_id/lists", secure(lists.GetListByUserId))
 
 	return new_router
 }
